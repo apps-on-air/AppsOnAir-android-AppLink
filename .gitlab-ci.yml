@@ -1,0 +1,43 @@
+variables:
+  BITBUCKET_REPO_URL: https://$BITBUCKET_CLOUD_USERNAME:$BITBUCKET_CLOUD_PASSWORD@bitbucket.org/dev-work-space/referal-dynamiclink-android.git
+
+stages:
+  - dev
+  - prod
+  - sync_tag
+
+sync_gitlab_to_bitbucket:
+  stage: dev
+  script:
+    - echo "The job's stage is '$CI_JOB_STAGE'"
+    - git checkout "$CI_COMMIT_BRANCH"
+    - git pull
+    - git remote set-url origin $BITBUCKET_REPO_URL
+    - git push origin "$CI_COMMIT_BRANCH"
+  except:
+    - master
+    - main
+
+sync_gitlab_to_bitbucket_prod:
+  stage: prod
+  when: manual
+  script:
+    - git checkout "$CI_COMMIT_BRANCH"
+    - git pull
+    - git remote set-url origin $BITBUCKET_REPO_URL
+    - git push origin "$CI_COMMIT_BRANCH"
+  only:
+    - master
+    - main
+
+sync_tags_to_bitbucket:
+  stage: sync_tag
+  script:
+    - git fetch --tags origin
+    - TAG=$(git describe --tags)
+    - echo $TAG
+    - git checkout $TAG
+    - git remote set-url origin $BITBUCKET_REPO_URL
+    - git push origin $TAG
+  only:
+    - tags
