@@ -180,7 +180,7 @@ class MainActivity : ComponentActivity() {
                                             iOSFallbackUrl = "www.appstore/app.com",
                                             context = this@MainActivity
                                         )
-                                        Log.d("API response==>", result)
+                                        Log.d("API response==>", result.toString())
                                         isLoading = false // Hide loader
                                     }
                                 },

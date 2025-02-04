@@ -9,6 +9,9 @@ import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.android.installreferrer.api.ReferrerDetails
 import com.appsonair.applink.interfaces.AppLinkListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AppLinkService private constructor(private val context: Context) {
 
@@ -107,7 +110,16 @@ class AppLinkService private constructor(private val context: Context) {
      * Handles a referral link.
      */
     private fun onReferralLinkDetected(uri: Uri, params: Map<String, String>) {
-        listener.onReferralLinkDetected(uri, params)
+//        listener.onReferralLinkDetected(uri, params)
+        CoroutineScope(Dispatchers.Main).launch {
+            val linkId = "Id to be fetch from params"
+            val result = AppLinkHandler.fetchAppLink(
+                context = context,
+                linkId = linkId
+            )
+            listener.onReferralLinkDetected(uri, params)
+            Log.d("Test======>", "test==$result")
+        }
     }
 
 
@@ -156,7 +168,16 @@ class AppLinkService private constructor(private val context: Context) {
      */
     private fun onDeepLinkProcessed(uri: Uri, params: Map<String, String>) {
         // Handle deep link success logic here if needed (e.g., logging, analytics)
-        listener.onDeepLinkProcessed(uri, params)
+//        listener.onDeepLinkProcessed(uri, params)
+        CoroutineScope(Dispatchers.Main).launch {
+            val linkId = "Id to be fetch from params"
+            val result = AppLinkHandler.fetchAppLink(
+                context = context,
+                linkId = linkId
+            )
+            listener.onDeepLinkProcessed(uri, params)
+            Log.d("Test======>", "test==$result")
+        }
     }
 
     /**

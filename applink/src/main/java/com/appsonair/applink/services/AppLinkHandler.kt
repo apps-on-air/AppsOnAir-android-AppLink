@@ -19,7 +19,10 @@ class AppLinkHandler {
     companion object {
 
         @JvmStatic
-        suspend fun fetchAppLink(context: Context, linkId: String): String {
+        suspend fun fetchAppLink(
+            context: Context? = null,
+            linkId: String
+        ): JSONObject {
             /// val appsOnAirAppId = CoreService.getAppId(context)
             val appLinkURL = "https://www.google.com"
             val json = "application/json; charset=utf-8".toMediaType() // Media type for JSON
@@ -28,25 +31,40 @@ class AppLinkHandler {
             val jsonObject = try {
                 val additionalInfo = mapOf("appLinkVersion" to "To be done")
                 val deviceInfoWithAdditionalInfo =
-                    CoreService.getDeviceInfo(context, additionalInfo)
+                    context?.let { CoreService.getDeviceInfo(it, additionalInfo) }
+
+                ////For storing the data in single object as remark need to comment out below code if need to do.
+                /*          val additionalInfo = mapOf("appLinkVersion" to "To be done")
+                            val deviceInfoWithAdditionalInfo =
+                                CoreService.getDeviceInfo(context, additionalInfo)
+                            val dInfo = deviceInfoWithAdditionalInfo.getJSONObject("deviceInfo").toMap()
+                            val aInfo = deviceInfoWithAdditionalInfo.getJSONObject("appInfo").toMap()
+                            val finalMap = dInfo + aInfo */
 
                 JSONObject().apply {
                     put("where", JSONObject().put("linkId", linkId))
                     put(
                         "data",
                         JSONObject().apply {
-                            put(
-                                "deviceInfo",
-                                deviceInfoWithAdditionalInfo.getJSONObject("deviceInfo")
-                            )
-                            put("appInfo", deviceInfoWithAdditionalInfo.getJSONObject("appInfo"))
+                            if (deviceInfoWithAdditionalInfo != null) {
+                                put(
+                                    "deviceInfo",
+                                    deviceInfoWithAdditionalInfo.getJSONObject("deviceInfo")
+                                )
+                            }
+                            if (deviceInfoWithAdditionalInfo != null) {
+                                put(
+                                    "appInfo",
+                                    deviceInfoWithAdditionalInfo.getJSONObject("appInfo")
+                                )
+                            }
                         }
                     )
                 }
             } catch (e: JSONException) {
                 Log.e("JSONError", "Failed to construct JSON object: ${e.message}")
                 message = "Error to be return"// Exit early if JSON creation fails
-                return message
+                return JSONObject(mapOf("error" to message))
             }
             val body = jsonObject.toString().toRequestBody(json)
             val request = Request.Builder()
@@ -61,19 +79,28 @@ class AppLinkHandler {
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string().orEmpty()
                         Log.d("ResponseSuccess", "Response: $responseBody")
-                        responseBody // Return the response directly
+
+                        JSONObject(responseBody)  // Return the response directly
                     } else {
-                        Utils.showToastMsg(context, response.message)
+                        if (context != null) {
+                            Utils.showToastMsg(context, response.message)
+                        }
                         Log.e(
                             "ResponseError",
                             "Error code: ${response.code}, message: ${response.message}"
                         )
-                        "ResponseError: ${response.code} ${response.message}" // Handle error response
+                        JSONObject(mapOf("error" to "ResponseError: ${response.code} ${response.message}"))
+                        // Handle error response
                     }
                 } catch (e: Exception) {
-                    e.message?.let { Utils.showToastMsg(context, it) }
+                    e.message?.let {
+                        if (context != null) {
+                            Utils.showToastMsg(context, it)
+                        }
+                    }
                     Log.e("NetworkError", "Request failed: ${e.message}")
-                    "Request failed: ${e.message}" // Handle failure
+                    // Handle failure
+                    JSONObject(mapOf("error" to "Request failed: ${e.message}"))
                 }
             }
         }
@@ -90,19 +117,12 @@ class AppLinkHandler {
             androidFallbackUrl: String? = null,
             iOSFallbackUrl: String? = null,
             context: Context
-        ): String {
+        ): JSONObject {
             val appLinkURL = "https://www.google.com" // Your API endpoint
             val json = "application/json; charset=utf-8".toMediaType() // Media type for JSON
             val client = OkHttpClient() // OkHttp client instance
             var message: String
             val appsOnAirAppId = CoreService.getAppId(context)
-            ////For storing the data in single object as remark need to comment out below code if need to do.
-            /*            val additionalInfo = mapOf("appLinkVersion" to "To be done")
-                        val deviceInfoWithAdditionalInfo =
-                            CoreService.getDeviceInfo(context, additionalInfo)
-                        val dInfo = deviceInfoWithAdditionalInfo.getJSONObject("deviceInfo").toMap()
-                        val aInfo = deviceInfoWithAdditionalInfo.getJSONObject("appInfo").toMap()
-                        val finalMap = dInfo + aInfo*/
             // Build JSON object for the request body
             val jsonObject = try {
                 JSONObject().apply {
@@ -125,7 +145,7 @@ class AppLinkHandler {
             } catch (e: JSONException) {
                 Log.e("JSONError", "Failed to construct JSON object: ${e.message}")
                 message = "Failed to create JSON: ${e.message}"
-                return message // Exit early if JSON creation fails
+                return JSONObject(mapOf("error" to message)) // Exit early if JSON creation fails
             }
 
             val body = try {
@@ -133,7 +153,7 @@ class AppLinkHandler {
             } catch (e: Exception) {
                 Log.e("RequestError", "Failed to create request body: ${e.message}")
                 message = "Failed to create request body"
-                return message // Exit early if request body creation fails
+                return JSONObject(mapOf("error" to message)) // Exit early if request body creation fails
             }
 
             val request = Request.Builder()
@@ -147,7 +167,7 @@ class AppLinkHandler {
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string().orEmpty()
                         Log.d("ResponseSuccess", "Response: $responseBody")
-                        responseBody // Return the response directly
+                        JSONObject(responseBody) // Return the response directly
                     } else {
                         Log.e(
                             "ResponseError",
@@ -157,12 +177,12 @@ class AppLinkHandler {
                             context,
                             "Error code: ${response.code}, message: ${response.message}"
                         )
-                        "ResponseError: ${response.code} ${response.message}" // Handle error response
+                        JSONObject(mapOf("error" to "ResponseError: ${response.code} ${response.message}")) // Handle error response
                     }
                 } catch (e: Exception) {
                     e.message?.let { Utils.showToastMsg(context, it) }
                     Log.e("NetworkError", "Request failed: ${e.message}")
-                    "Request failed: ${e.message}" // Handle failure
+                    JSONObject(mapOf("error" to "Request failed: ${e.message}")) // Handle failure
                 }
             }
         }
