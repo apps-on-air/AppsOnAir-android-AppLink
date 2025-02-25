@@ -146,7 +146,7 @@ class MainActivity : ComponentActivity() {
                             // Button to get the referral link
                             ElevatedButton(onClick = {
                                 val referral = deeplinkService.getReferralLink()
-                                setUI(referral) // Update UI with referral link
+                                setUI(referral.toString()) // Update UI with referral link
                             }) {
                                 Text("Get Referral Link")
                             }

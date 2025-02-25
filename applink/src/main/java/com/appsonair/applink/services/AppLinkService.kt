@@ -12,6 +12,7 @@ import com.appsonair.applink.interfaces.AppLinkListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class AppLinkService private constructor(private val context: Context) {
 
@@ -28,7 +29,7 @@ class AppLinkService private constructor(private val context: Context) {
     }
 
     private lateinit var listener: AppLinkListener
-    private var referralLink = ""
+    private var referralLink = JSONObject()
 
     fun initialize(intent: Intent, listener: AppLinkListener) {
         this.listener = listener
@@ -49,7 +50,7 @@ class AppLinkService private constructor(private val context: Context) {
         this.listener = listener
     }
 
-    fun getReferralLink(): String {
+    fun getReferralLink(): JSONObject {
         return referralLink
     }
 
@@ -110,7 +111,6 @@ class AppLinkService private constructor(private val context: Context) {
      * Handles a referral link.
      */
     private fun onReferralLinkDetected(uri: Uri, params: Map<String, String>) {
-//        listener.onReferralLinkDetected(uri, params)
         CoroutineScope(Dispatchers.Main).launch {
             val linkId = "Id to be fetch from params"
             val result = AppLinkHandler.fetchAppLink(
@@ -118,7 +118,6 @@ class AppLinkService private constructor(private val context: Context) {
                 linkId = linkId
             )
             listener.onReferralLinkDetected(uri, params)
-            Log.d("Test======>", "test==$result")
         }
     }
 
@@ -141,7 +140,13 @@ class AppLinkService private constructor(private val context: Context) {
                         Log.d("Referrer Click Time-->", "Referrer Url: $referrerClickTime")
                         Log.d("appInstallTime Click Time-->", "Referrer Url: $appInstallTime")
                         val referrerUrl = response.installReferrer
-                        referralLink = referrerUrl
+                        val referrerData = mapOf(
+                            "installReferrer" to response.installReferrer,
+                            "referrerClickTimestamp" to response.referrerClickTimestampSeconds,
+                            "installBeginTimestamp" to response.installBeginTimestampSeconds,
+                            "installVersion" to response.installVersion,
+                        )
+                        referralLink = JSONObject(referrerData)
                         callback(referrerUrl)
                         // listener.onDeepLinkProcessed(Uri.parse(referrerUrl0), emptyMap())
                         referrerClient.endConnection()
@@ -168,7 +173,6 @@ class AppLinkService private constructor(private val context: Context) {
      */
     private fun onDeepLinkProcessed(uri: Uri, params: Map<String, String>) {
         // Handle deep link success logic here if needed (e.g., logging, analytics)
-//        listener.onDeepLinkProcessed(uri, params)
         CoroutineScope(Dispatchers.Main).launch {
             val linkId = "Id to be fetch from params"
             val result = AppLinkHandler.fetchAppLink(
@@ -176,7 +180,6 @@ class AppLinkService private constructor(private val context: Context) {
                 linkId = linkId
             )
             listener.onDeepLinkProcessed(uri, params)
-            Log.d("Test======>", "test==$result")
         }
     }
 
@@ -200,7 +203,6 @@ class AppLinkService private constructor(private val context: Context) {
      * Opens the fallback URL in the browser.
      */
     private fun openFallbackUrl(fallbackUrl: String) {
-        Log.d("fallback url==========>", fallbackUrl)
         val fallbackUri = fallbackUrl.toUri()
         try {
             context.startActivity(Intent(Intent.ACTION_VIEW, fallbackUri).apply {
