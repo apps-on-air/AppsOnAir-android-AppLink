@@ -41,6 +41,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+
 class MainActivity : ComponentActivity() {
 
     private lateinit var deeplinkService: AppLinkService
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
         // Initialize deeplink service and set listener for deep link and referral link events
         deeplinkService = AppLinkService.getInstance(this)
         // Initialize the app link to track the deeplink and referral tracking.
-        deeplinkService.initialize(intent, object : AppLinkListener {
+        deeplinkService.initialize(this, intent, object : AppLinkListener {
             override fun onDeepLinkProcessed(uri: Uri, params: Map<String, String>) {
                 // Store the processed deep link URL and log the parameters
                 deepLinkUrl = uri.toString()

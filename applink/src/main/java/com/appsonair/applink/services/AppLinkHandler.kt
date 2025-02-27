@@ -23,6 +23,10 @@ class AppLinkHandler {
             context: Context? = null,
             linkId: String
         ): JSONObject {
+            val isNetworkConnected = NetworkWatcherService.isNetworkConnected
+            if (!isNetworkConnected) {
+                return JSONObject(mapOf("error" to "No Network Available!!")) // Exit early if JSON creation fails
+            }
             /// val appsOnAirAppId = CoreService.getAppId(context)
             val appLinkURL = "https://www.google.com"
             val json = "application/json; charset=utf-8".toMediaType() // Media type for JSON
@@ -118,6 +122,10 @@ class AppLinkHandler {
             iOSFallbackUrl: String? = null,
             context: Context
         ): JSONObject {
+            var isNetworkConnected = NetworkWatcherService.isNetworkConnected
+            if (!isNetworkConnected) {
+                return JSONObject(mapOf("error" to "No Network Available!!")) // Exit early if JSON creation fails
+            }
             val appLinkURL = "https://www.google.com" // Your API endpoint
             val json = "application/json; charset=utf-8".toMediaType() // Media type for JSON
             val client = OkHttpClient() // OkHttp client instance

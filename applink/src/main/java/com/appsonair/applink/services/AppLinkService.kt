@@ -31,7 +31,7 @@ class AppLinkService private constructor(private val context: Context) {
     private lateinit var listener: AppLinkListener
     private var referralLink = JSONObject()
 
-    fun initialize(intent: Intent, listener: AppLinkListener) {
+    fun initialize(context: Context, intent: Intent, listener: AppLinkListener) {
         this.listener = listener
 
         // Fetch install referrer (if needed for initialization)
@@ -41,6 +41,8 @@ class AppLinkService private constructor(private val context: Context) {
 
         // Handle deep link processing immediately
         handleDeepLink(intent, "com.example.appsonair_android_applink")
+
+        NetworkWatcherService.checkNetworkConnection(context)
     }
 
     /**
