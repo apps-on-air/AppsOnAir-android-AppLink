@@ -58,21 +58,18 @@ class MainActivity : ComponentActivity() {
             override fun onDeepLinkProcessed(uri: Uri, params: Map<String, String>) {
                 // Store the processed deep link URL and log the parameters
                 deepLinkUrl = uri.toString()
-                Log.d("DeepLinkListener", "Deep link processed-->$uri")
-                Log.d("DeepLinkListener", "Parameters: $params")
+                Log.d("DeepLinkListener", "Deep link uri-->$uri, Parameters--> $params")
                 setUI(deepLinkUrl) // Update UI with the deep link URL
             }
 
             override fun onDeepLinkError(uri: Uri?, error: String) {
                 // Handle error when deep link processing fails
-                Log.e("DeepLinkListener", "Failed to process deep link: $uri")
-                Log.e("DeepLinkListener", "Error: $error")
+                Log.e("DeepLinkListener", "Failed to process deep link: $uri, Error: $error")
             }
 
             override fun onReferralLinkDetected(uri: Uri, params: Map<String, String>) {
                 // Handle referral link detection
-                Log.d("DeepLinkListener", "Referral link processed-->$uri")
-                Log.d("DeepLinkListener", "Parameters: $params")
+                Log.d("DeepLinkListener", "Referral link uri-->$uri, Parameters: $params")
             }
         })
 

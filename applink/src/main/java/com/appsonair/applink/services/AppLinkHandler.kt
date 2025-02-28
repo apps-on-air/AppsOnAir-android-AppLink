@@ -122,7 +122,7 @@ class AppLinkHandler {
             iOSFallbackUrl: String? = null,
             context: Context
         ): JSONObject {
-            var isNetworkConnected = NetworkWatcherService.isNetworkConnected
+            val isNetworkConnected = NetworkWatcherService.isNetworkConnected
             if (!isNetworkConnected) {
                 return JSONObject(mapOf("error" to "No Network Available!!")) // Exit early if JSON creation fails
             }

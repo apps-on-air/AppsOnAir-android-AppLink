@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
+import com.appsonair.applink.services.NetworkWatcherService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -58,9 +59,12 @@ internal class NetworkUtils {
         @JvmStatic
         suspend fun getPublicIp(): String? {
             return try {
-                withContext(Dispatchers.IO) {
-                    URL("https://api.ipify.org").readText()
-                }
+                if (NetworkWatcherService.isNetworkConnected) {
+                    withContext(Dispatchers.IO) {
+                        URL("https://api.ipify.org").readText()
+                    }
+                } else
+                    null
             } catch (e: Exception) {
                 e.printStackTrace()
                 null

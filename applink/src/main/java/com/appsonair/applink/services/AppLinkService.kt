@@ -134,13 +134,6 @@ class AppLinkService private constructor(private val context: Context) {
                 when (responseCode) {
                     InstallReferrerClient.InstallReferrerResponse.OK -> {
                         val response: ReferrerDetails = referrerClient.installReferrer
-                        // Connection established.
-                        val referrerUrl0 = response.installReferrer
-                        val referrerClickTime = response.referrerClickTimestampSeconds
-                        val appInstallTime = response.installBeginTimestampSeconds
-                        Log.d("InstallReferrer-->", "Referrer Url: $referrerUrl0")
-                        Log.d("Referrer Click Time-->", "Referrer Url: $referrerClickTime")
-                        Log.d("appInstallTime Click Time-->", "Referrer Url: $appInstallTime")
                         val referrerUrl = response.installReferrer
                         val referrerData = mapOf(
                             "installReferrer" to response.installReferrer,
