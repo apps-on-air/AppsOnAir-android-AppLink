@@ -7,15 +7,27 @@ plugins {
 group = "com.appsonair"
 version = "0.0.1"
 
+val projectProperties = listOf(
+    "BASE_URL",
+    "VERSION_CODE",
+    "VERSION_NAME"
+).associateWith { project.property(it) as String }
+
 android {
     namespace = "com.appsonair.applink"
     compileSdk = 34
-
     defaultConfig {
         minSdk = 24
+        projectProperties.forEach { (key, value) ->
+            buildConfigField("String", key, "\"$value\"")
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -39,19 +51,19 @@ android {
         singleVariant("release")
     }
 }
-    dependencies {
-            implementation (libs.androidx.core.ktx)
-            implementation (libs.androidx.fragment.ktx)
-            implementation (libs.androidx.appcompat)
-            implementation (libs.material)
-            implementation (libs.androidx.constraintlayout)
-            implementation (libs.okhttp)
-            implementation(libs.installreferrer)
-            implementation (libs.appsonair.android.core)
-            implementation(libs.androidx.ui.test.junit4.android)
-            testImplementation (libs.junit)
-            androidTestImplementation (libs.androidx.junit)
-            androidTestImplementation (libs.androidx.espresso.core)
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.okhttp)
+    implementation(libs.installreferrer)
+    implementation(libs.appsonair.android.core)
+    implementation(libs.androidx.ui.test.junit4.android)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }
 
 publishing {

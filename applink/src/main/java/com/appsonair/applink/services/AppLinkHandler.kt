@@ -33,17 +33,21 @@ class AppLinkHandler {
             val client = OkHttpClient() // Avoid using `.newBuilder()` unnecessarily
             var message: String
             val jsonObject = try {
-                val additionalInfo = mapOf("appLinkVersion" to "To be done")
+                val additionalInfo = mapOf("appLinkVersion" to "0.0.1")
                 val deviceInfoWithAdditionalInfo =
                     context?.let { CoreService.getDeviceInfo(it, additionalInfo) }
 
                 ////For storing the data in single object as remark need to comment out below code if need to do.
-                /*          val additionalInfo = mapOf("appLinkVersion" to "To be done")
-                            val deviceInfoWithAdditionalInfo =
-                                CoreService.getDeviceInfo(context, additionalInfo)
-                            val dInfo = deviceInfoWithAdditionalInfo.getJSONObject("deviceInfo").toMap()
-                            val aInfo = deviceInfoWithAdditionalInfo.getJSONObject("appInfo").toMap()
-                            val finalMap = dInfo + aInfo */
+                /*    context?.let {
+                        val additionalInfo = mapOf("appLinkVersion" to "To be done")
+                        val deviceInfoWithAdditionalInfo = CoreService.getDeviceInfo(it, additionalInfo)
+
+                        val finalMap =
+                            deviceInfoWithAdditionalInfo.getJSONObject("deviceInfo").toMap() +
+                                    deviceInfoWithAdditionalInfo.getJSONObject("appInfo").toMap()
+
+                        JSONObject().apply { put("deviceInfo", finalMap) }
+                    }*/
 
                 JSONObject().apply {
                     put("where", JSONObject().put("linkId", linkId))
@@ -127,6 +131,7 @@ class AppLinkHandler {
                 return JSONObject(mapOf("error" to "No Network Available!!")) // Exit early if JSON creation fails
             }
             val appLinkURL = "https://www.google.com" // Your API endpoint
+            // val appLinkURL = "https://jsonplaceholder.typicode.com/posts/1" // Test
             val json = "application/json; charset=utf-8".toMediaType() // Media type for JSON
             val client = OkHttpClient() // OkHttp client instance
             var message: String
