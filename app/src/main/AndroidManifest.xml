@@ -31,10 +31,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:host="server.dev.appsonair.link"
+                    android:host="subdomain.appsonair.link"
                     android:scheme="https" />
             </intent-filter>
         </activity>
+        <meta-data
+            android:name="appId"
+            android:value="*************" />
     </application>
 
 </manifest>

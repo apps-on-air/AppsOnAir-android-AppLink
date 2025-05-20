@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.appsonair.applink.interfaces.AppLinkListener
-import com.appsonair.applink.services.AppLinkHandler
 import com.appsonair.applink.services.AppLinkService
 import com.example.appsonair_android_applink.ui.theme.AppLinkTheme
 import kotlinx.coroutines.CoroutineScope
@@ -67,10 +66,10 @@ class MainActivity : ComponentActivity() {
                 Log.e("DeepLinkListener", "Failed to process deep link: $uri, Error: $error")
             }
 
-            override fun onReferralLinkDetected(uri: Uri, params: Map<String, String>) {
-                // Handle referral link detection
-                Log.d("DeepLinkListener", "Referral link uri-->$uri, Parameters: $params")
-            }
+//            override fun onReferralLinkDetected(uri: Uri, params: Map<String, String>) {
+//                // Handle referral link detection
+//                Log.d("DeepLinkListener", "Referral link uri-->$uri, Parameters: $params")
+//            }
         })
 
         // Update UI with the current deep link URL
@@ -142,12 +141,12 @@ class MainActivity : ComponentActivity() {
                             }
 
                             // Button to get the referral link
-                            ElevatedButton(onClick = {
-                                val referral = deeplinkService.getReferralLink()
-                                setUI(referral.toString()) // Update UI with referral link
-                            }) {
-                                Text("Get Referral Link")
-                            }
+//                            ElevatedButton(onClick = {
+//                                val referral = deeplinkService.getReferralDetails()
+//                                setUI(referral.toString()) // Update UI with referral link
+//                            }) {
+//                                Text("Get Referral Link")
+//                            }
 
                             // Button to trigger API call
                             ElevatedButton(
@@ -167,16 +166,17 @@ class MainActivity : ComponentActivity() {
                                     )
 
                                     CoroutineScope(Dispatchers.Main).launch {
-                                        val result = AppLinkHandler.createAppLink(
-                                            url = "https://app.com",
-                                            prefixUrl = "https://appsonair.link",
+                                        val result = deeplinkService.createAppLink(
+                                            name = "AppsOnAir",
+                                            url = "https://appsonair.com",
+                                            urlPrefix = "test-prefix.dev.appsonair.link",
+                                            prefixId = "referrer",
                                             customParams = customParams,
                                             socialMeta = socialMeta,
                                             analytics = analytics,
-                                            isShortLink = true,
+                                            //isShortLink = true,
                                             androidFallbackUrl = "www.playstore/app.com",
                                             iOSFallbackUrl = "www.appstore/app.com",
-                                            context = this@MainActivity
                                         )
                                         Log.d("API response==>", result.toString())
                                         isLoading = false // Hide loader

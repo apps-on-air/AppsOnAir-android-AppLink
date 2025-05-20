@@ -1,5 +1,6 @@
 package com.appsonair.applink.services
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -9,6 +10,7 @@ import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
 import com.android.installreferrer.api.ReferrerDetails
 import com.appsonair.applink.interfaces.AppLinkListener
+import com.appsonair.core.services.CoreService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,6 +20,7 @@ class AppLinkService private constructor(private val context: Context) {
 
 
     companion object {
+        @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: AppLinkService? = null
 
@@ -33,10 +36,14 @@ class AppLinkService private constructor(private val context: Context) {
 
     fun initialize(context: Context, intent: Intent, listener: AppLinkListener) {
         this.listener = listener
+        AppLinkHandler.appsOnAirAppId = CoreService.getAppId(context)
 
         // Fetch install referrer (if needed for initialization)
         fetchInstallReferrer {
-            Log.d("AppLinkService", "Install Referrer fetched successfully.")
+
+
+            Log.d("AppLinkService", "Install Referrer fetched successfully----> ${it}.")
+
         }
 
         // Handle deep link processing immediately
@@ -45,16 +52,51 @@ class AppLinkService private constructor(private val context: Context) {
         NetworkWatcherService.checkNetworkConnection(context)
     }
 
+    suspend fun createAppLink(
+        url: String,
+        name: String,
+        urlPrefix: String,
+        prefixId: String? = null,
+        customParams: Map<String, Any>? = null,//For future use
+        socialMeta: Map<String, Any>? = null,
+        analytics: Map<String, Any>? = null,//For future use
+        // isShortLink: Boolean = true,//For future use
+        isOpenInBrowserAndroid: Boolean = false,
+        isOpenInAndroidApp: Boolean = true,
+        androidFallbackUrl: String? = null,
+        isOpenInBrowserApple: Boolean = false,
+        isOpenInIosApp: Boolean = true,
+        iOSFallbackUrl: String? = null,
+    ): JSONObject {
+
+        return AppLinkHandler.createAppLink(
+            name = name,
+            url = url,
+            urlPrefix = urlPrefix,
+            prefixId = prefixId,
+            customParams = customParams,
+            socialMeta = socialMeta,
+            analytics = analytics,
+            //isShortLink = true,
+            isOpenInBrowserAndroid = isOpenInBrowserAndroid,
+            isOpenInAndroidApp = isOpenInAndroidApp,
+            androidFallbackUrl = androidFallbackUrl,
+            isOpenInBrowserApple = isOpenInBrowserApple,
+            isOpenInIosApp = isOpenInIosApp,
+            iOSFallbackUrl = iOSFallbackUrl,
+        )
+    }
+
     /**
      * Registers a DeepLinkListener.
      */
-    fun setListener(listener: AppLinkListener) {
-        this.listener = listener
-    }
+//    fun setListener(listener: AppLinkListener) {
+//        this.listener = listener
+//    }
 
-    fun getReferralLink(): JSONObject {
-        return referralLink
-    }
+//    fun getReferralDetails(): JSONObject {
+//        return referralLink
+//    }
 
 
     /**
@@ -74,14 +116,13 @@ class AppLinkService private constructor(private val context: Context) {
     ) {
         val uri = intent.data
         if (uri != null) {
-            Log.d("Deeplink====>", uri.toString())
             try {
                 val params = extractQueryParameters(uri)
-                if (isReferralLink(params)) {
-                    onReferralLinkDetected(uri, params)
-                } else {
-                    onDeepLinkProcessed(uri, params)
-                }
+//                if (isReferralLink(params)) {
+//                    onReferralLinkDetected(uri, params)
+//                } else {
+                onDeepLinkProcessed(uri, params)
+                //}
             } catch (e: Exception) {
                 onDeepLinkError(uri, "Error processing deep link: ${e.message}")
                 handleFallback(fallbackPackageName, fallbackUrl, source)
@@ -116,10 +157,9 @@ class AppLinkService private constructor(private val context: Context) {
         CoroutineScope(Dispatchers.Main).launch {
             val linkId = "Id to be fetch from params"
             val result = AppLinkHandler.fetchAppLink(
-                context = context,
                 linkId = linkId
             )
-            listener.onReferralLinkDetected(uri, params)
+            //listener.onReferralLinkDetected(uri, params)
         }
     }
 
@@ -169,11 +209,15 @@ class AppLinkService private constructor(private val context: Context) {
     private fun onDeepLinkProcessed(uri: Uri, params: Map<String, String>) {
         // Handle deep link success logic here if needed (e.g., logging, analytics)
         CoroutineScope(Dispatchers.Main).launch {
-            val linkId = "Id to be fetch from params"
-            val result = AppLinkHandler.fetchAppLink(
-                context = context,
-                linkId = linkId
-            )
+            val lastSegment = uri.lastPathSegment.orEmpty()
+
+            if (lastSegment.isNotEmpty()) {
+                val result = AppLinkHandler.fetchAppLink(
+                    linkId = lastSegment
+                )
+                Log.d("API response==>", result.toString())
+            }
+
             listener.onDeepLinkProcessed(uri, params)
         }
     }

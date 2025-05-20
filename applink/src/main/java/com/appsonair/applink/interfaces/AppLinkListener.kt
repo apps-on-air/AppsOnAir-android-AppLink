@@ -19,5 +19,5 @@ interface AppLinkListener {
      */
     fun onDeepLinkError(uri: Uri?, error: String) // appLinkError
 
-    fun onReferralLinkDetected(uri: Uri, params: Map<String, String>)
+//    fun onReferralLinkDetected(uri: Uri, params: Map<String, String>)
 }
