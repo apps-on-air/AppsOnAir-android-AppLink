@@ -74,7 +74,6 @@ internal class AppLinkHandler {
             customParams: Map<String, Any>? = null,//For future use
             socialMeta: Map<String, Any>? = null,
             analytics: Map<String, Any>? = null,//For future use
-            // isShortLink: Boolean = true,//For future use
             isOpenInBrowserAndroid: Boolean = false,
             isOpenInAndroidApp: Boolean = true,
             androidFallbackUrl: String? = null,

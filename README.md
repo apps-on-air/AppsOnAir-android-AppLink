@@ -1,6 +1,9 @@
+## ![pub package](https://appsonair.com/images/logo.svg)
 # AppsOnAir-android-AppLink
 
 **AppsOnAir-android-AppLink** enables you to handle deep links, and in-app routing seamlessly in your Android app. With a simple integration, you can configure, manage, and act on links from the web dashboard in real time.
+
+more detail refer this [documentation](https://documentation.appsonair.com/MobileQuickstart/GettingStarted/).
 
 ## 🚀 Features
 
@@ -110,12 +113,19 @@ dependencyResolutionManagement {
 
 #### For creating the AppLink
 ```
+    val socialMeta = mapOf(
+        "title" to "link title",
+        "description" to "link description",
+        "imageUrl" to "https://image.png"
+    )
+
      val result = deeplinkService.createAppLink(
         name = "AppsOnAir",
         url = "https://appsonair.com",
-        urlPrefix = "subdomain.appsonair.link",
-        prefixId = "referrer",
+        urlPrefix = "YOUR_DOMAIN_NAME",
+        prefixId = "LINK_ID",
         socialMeta = socialMeta,
         androidFallbackUrl = "www.playstore/app.com",
-        iOSFallbackUrl = "www.appstore/app.com")
+        iOSFallbackUrl = "www.appstore/app.com",
+    )
 ```

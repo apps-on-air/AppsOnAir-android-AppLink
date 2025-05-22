@@ -40,10 +40,7 @@ class AppLinkService private constructor(private val context: Context) {
 
         // Fetch install referrer (if needed for initialization)
         fetchInstallReferrer {
-
-
             Log.d("AppLinkService", "Install Referrer fetched successfully----> ${it}.")
-
         }
 
         // Handle deep link processing immediately
@@ -60,7 +57,6 @@ class AppLinkService private constructor(private val context: Context) {
         customParams: Map<String, Any>? = null,//For future use
         socialMeta: Map<String, Any>? = null,
         analytics: Map<String, Any>? = null,//For future use
-        // isShortLink: Boolean = true,//For future use
         isOpenInBrowserAndroid: Boolean = false,
         isOpenInAndroidApp: Boolean = true,
         androidFallbackUrl: String? = null,
@@ -77,7 +73,6 @@ class AppLinkService private constructor(private val context: Context) {
             customParams = customParams,
             socialMeta = socialMeta,
             analytics = analytics,
-            //isShortLink = true,
             isOpenInBrowserAndroid = isOpenInBrowserAndroid,
             isOpenInAndroidApp = isOpenInAndroidApp,
             androidFallbackUrl = androidFallbackUrl,
@@ -117,11 +112,11 @@ class AppLinkService private constructor(private val context: Context) {
         val uri = intent.data
         if (uri != null) {
             try {
-                val params = extractQueryParameters(uri)
+                //val params = extractQueryParameters(uri)
 //                if (isReferralLink(params)) {
 //                    onReferralLinkDetected(uri, params)
 //                } else {
-                onDeepLinkProcessed(uri, params)
+                onDeepLinkProcessed(uri, JSONObject())
                 //}
             } catch (e: Exception) {
                 onDeepLinkError(uri, "Error processing deep link: ${e.message}")
@@ -206,19 +201,20 @@ class AppLinkService private constructor(private val context: Context) {
     /**
      * Handles successful deep link processing.
      */
-    private fun onDeepLinkProcessed(uri: Uri, params: Map<String, String>) {
+    private fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
         // Handle deep link success logic here if needed (e.g., logging, analytics)
         CoroutineScope(Dispatchers.Main).launch {
             val lastSegment = uri.lastPathSegment.orEmpty()
+            var result = JSONObject()
 
             if (lastSegment.isNotEmpty()) {
-                val result = AppLinkHandler.fetchAppLink(
+                result = AppLinkHandler.fetchAppLink(
                     linkId = lastSegment
                 )
                 Log.d("API response==>", result.toString())
             }
 
-            listener.onDeepLinkProcessed(uri, params)
+            listener.onDeepLinkProcessed(uri, result)
         }
     }
 

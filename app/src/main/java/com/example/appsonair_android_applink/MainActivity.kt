@@ -39,6 +39,7 @@ import com.example.appsonair_android_applink.ui.theme.AppLinkTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 
 class MainActivity : ComponentActivity() {
@@ -54,10 +55,13 @@ class MainActivity : ComponentActivity() {
         deeplinkService = AppLinkService.getInstance(this)
         // Initialize the app link to track the deeplink and referral tracking.
         deeplinkService.initialize(this, intent, object : AppLinkListener {
-            override fun onDeepLinkProcessed(uri: Uri, params: Map<String, String>) {
+            override fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
                 // Store the processed deep link URL and log the parameters
                 deepLinkUrl = uri.toString()
-                Log.d("DeepLinkListener", "Deep link uri-->$uri, Parameters--> $params")
+                Log.d(
+                    "DeepLinkListener",
+                    "Deep link Result -->$result"
+                )
                 setUI(deepLinkUrl) // Update UI with the deep link URL
             }
 
@@ -152,29 +156,19 @@ class MainActivity : ComponentActivity() {
                             ElevatedButton(
                                 onClick = {
                                     isLoading = true // Show loader
-                                    val customParams = mapOf("referrer" to "John")
                                     val socialMeta = mapOf(
                                         "title" to "link title",
-                                        "description" to "purpose",
-                                        "imageUrl" to "https://image.png"
-                                    )
-                                    val analytics = mapOf(
-                                        "platform" to "Android",
-                                        "utmSource" to "email",
-                                        "utmMedium" to "newsletter",
-                                        "utmCampaign" to "winter_sale"
+                                        "description" to "link description",
+                                        "imageUrl" to "your meta image url"
                                     )
 
                                     CoroutineScope(Dispatchers.Main).launch {
                                         val result = deeplinkService.createAppLink(
                                             name = "AppsOnAir",
                                             url = "https://appsonair.com",
-                                            urlPrefix = "test-prefix.dev.appsonair.link",
-                                            prefixId = "referrer",
-                                            customParams = customParams,
+                                            urlPrefix = "your url prefix",
+                                            prefixId = "linkId",
                                             socialMeta = socialMeta,
-                                            analytics = analytics,
-                                            //isShortLink = true,
                                             androidFallbackUrl = "www.playstore/app.com",
                                             iOSFallbackUrl = "www.appstore/app.com",
                                         )
