@@ -82,13 +82,6 @@ class AppLinkService private constructor(private val context: Context) {
         )
     }
 
-    /**
-     * Registers a DeepLinkListener.
-     */
-//    fun setListener(listener: AppLinkListener) {
-//        this.listener = listener
-//    }
-
 //    fun getReferralDetails(): JSONObject {
 //        return referralLink
 //    }
@@ -145,19 +138,6 @@ class AppLinkService private constructor(private val context: Context) {
         return params.containsKey("referrer") || params.containsKey("source")
     }
 
-    /**
-     * Handles a referral link.
-     */
-    private fun onReferralLinkDetected(uri: Uri, params: Map<String, String>) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val linkId = "Id to be fetch from params"
-            val result = AppLinkHandler.fetchAppLink(
-                linkId = linkId
-            )
-            //listener.onReferralLinkDetected(uri, params)
-        }
-    }
-
 
     /**
      * Retrieves referrer details from the Google Play Install Referrer API.
@@ -204,17 +184,18 @@ class AppLinkService private constructor(private val context: Context) {
     private fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
         // Handle deep link success logic here if needed (e.g., logging, analytics)
         CoroutineScope(Dispatchers.Main).launch {
+            val domain = uri.host
             val lastSegment = uri.lastPathSegment.orEmpty()
             var result = JSONObject()
 
             if (lastSegment.isNotEmpty()) {
                 result = AppLinkHandler.fetchAppLink(
-                    linkId = lastSegment
+                    linkId = lastSegment,
+                    domain = domain ?: ""
                 )
-                Log.d("API response==>", result.toString())
             }
-
-            listener.onDeepLinkProcessed(uri, result)
+            val resultData = result.optJSONObject("data") ?: result
+            listener.onDeepLinkProcessed(uri, resultData)
         }
     }
 

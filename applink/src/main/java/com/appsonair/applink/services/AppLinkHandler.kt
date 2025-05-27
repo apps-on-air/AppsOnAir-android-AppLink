@@ -23,13 +23,15 @@ internal class AppLinkHandler {
 
         @JvmStatic
         suspend fun fetchAppLink(
-            linkId: String
+            linkId: String,
+            domain: String
         ): JSONObject {
             val isNetworkConnected = NetworkWatcherService.isNetworkConnected
             if (!isNetworkConnected) {
                 return JSONObject(mapOf("error" to StringConst.NetworkError)) // Exit early if JSON creation fails
             }
-            val appLinkURL = BuildConfig.BASE_URL + StringConst.AppLinkCreate + linkId
+            val appLinkURL =
+                BuildConfig.BASE_URL + StringConst.AppLinkCreate + linkId + "?domain=$domain"
             val client = OkHttpClient()
 
             val request = Request.Builder()
