@@ -187,15 +187,14 @@ class AppLinkService private constructor(private val context: Context) {
             val domain = uri.host
             val lastSegment = uri.lastPathSegment.orEmpty()
             var result = JSONObject()
-
-            if (lastSegment.isNotEmpty()) {
+            val uriScheme = uri.scheme ?: ""
+            if ((uriScheme.contains("http") || uriScheme.contains("https")) && lastSegment.isNotEmpty()) {
                 result = AppLinkHandler.fetchAppLink(
                     linkId = lastSegment,
                     domain = domain ?: ""
                 )
             }
-            val resultData = result.optJSONObject("data") ?: result
-            listener.onDeepLinkProcessed(uri, resultData)
+            listener.onDeepLinkProcessed(uri, result.optJSONObject("data") ?: result)
         }
     }
 
