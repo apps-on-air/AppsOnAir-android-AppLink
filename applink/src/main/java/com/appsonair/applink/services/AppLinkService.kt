@@ -105,12 +105,7 @@ class AppLinkService private constructor(private val context: Context) {
         val uri = intent.data
         if (uri != null) {
             try {
-                //val params = extractQueryParameters(uri)
-//                if (isReferralLink(params)) {
-//                    onReferralLinkDetected(uri, params)
-//                } else {
-                onDeepLinkProcessed(uri, JSONObject())
-                //}
+                onDeepLinkProcessed(uri)
             } catch (e: Exception) {
                 onDeepLinkError(uri, "Error processing deep link: ${e.message}")
                 handleFallback(fallbackPackageName, fallbackUrl, source)
@@ -181,19 +176,25 @@ class AppLinkService private constructor(private val context: Context) {
     /**
      * Handles successful deep link processing.
      */
-    private fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
-        // Handle deep link success logic here if needed (e.g., logging, analytics)
+    private fun onDeepLinkProcessed(uri: Uri) {
         CoroutineScope(Dispatchers.Main).launch {
-            val domain = uri.host
-            val lastSegment = uri.lastPathSegment.orEmpty()
-            var result = JSONObject()
-            val uriScheme = uri.scheme ?: ""
-            if ((uriScheme.contains("http") || uriScheme.contains("https")) && lastSegment.isNotEmpty()) {
-                result = AppLinkHandler.fetchAppLink(
-                    linkId = lastSegment,
-                    domain = domain ?: ""
+            val uriScheme = uri.scheme.orEmpty()
+            val isHttpLink = uriScheme.startsWith("http")
+            val linkId: String
+            val domain: String
+
+            if (isHttpLink && !uri.lastPathSegment.isNullOrEmpty()) {
+                linkId = uri.lastPathSegment.orEmpty()
+                domain = uri.host.orEmpty()
+            } else {
+                val rawLink = uri.getQueryParameter("link").orEmpty()
+                val schemeUri = Uri.parse(
+                    if (rawLink.startsWith("http")) rawLink else "https://$rawLink"
                 )
+                linkId = schemeUri.lastPathSegment.orEmpty()
+                domain = schemeUri.host.orEmpty()
             }
+            val result = AppLinkHandler.fetchAppLink(linkId, domain)
             listener.onDeepLinkProcessed(uri, result.optJSONObject("data") ?: result)
         }
     }
