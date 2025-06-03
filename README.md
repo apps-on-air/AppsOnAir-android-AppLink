@@ -74,6 +74,17 @@ dependencyResolutionManagement {
      android:scheme="https" />
  </intent-filter>
 ```
+#### Add below code if you are using custom uri scheme.
+```sh
+ <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <data
+     android:host="open"
+     android:scheme="your scheme" />
+</intent-filter>
+```
 
 
 ## Example :
@@ -91,7 +102,7 @@ dependencyResolutionManagement {
         deeplinkService = AppLinkService.getInstance(this)
         // Initialize the app link to track the deeplink
         deeplinkService.initialize(this, intent, object : AppLinkListener {
-            override fun onDeepLinkProcessed(uri: Uri, params: Map<String, String>) {
+            override fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
                 // Store the processed deep link URL and log the parameters
             }
 
