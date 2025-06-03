@@ -53,10 +53,8 @@ class AppLinkService private constructor(private val context: Context) {
         url: String,
         name: String,
         urlPrefix: String,
-        prefixId: String? = null,
-        customParams: Map<String, Any>? = null,//For future use
+        shortId: String? = null,
         socialMeta: Map<String, Any>? = null,
-        analytics: Map<String, Any>? = null,//For future use
         isOpenInBrowserAndroid: Boolean = false,
         isOpenInAndroidApp: Boolean = true,
         androidFallbackUrl: String? = null,
@@ -69,10 +67,8 @@ class AppLinkService private constructor(private val context: Context) {
             name = name,
             url = url,
             urlPrefix = urlPrefix,
-            prefixId = prefixId,
-            customParams = customParams,
+            shortId = shortId,
             socialMeta = socialMeta,
-            analytics = analytics,
             isOpenInBrowserAndroid = isOpenInBrowserAndroid,
             isOpenInAndroidApp = isOpenInAndroidApp,
             androidFallbackUrl = androidFallbackUrl,
@@ -182,11 +178,18 @@ class AppLinkService private constructor(private val context: Context) {
             val isHttpLink = uriScheme.startsWith("http")
             val linkId: String
             val domain: String
-
             if (isHttpLink && !uri.lastPathSegment.isNullOrEmpty()) {
+                //TODO  Need to handle below case later
+                /*val containLink = uri.getQueryParameter("link").orEmpty()
+                if (containLink.isNotEmpty()) {
+                    // Need to manage verified link here...
+                    // Count api should be call here
+                }*/
                 linkId = uri.lastPathSegment.orEmpty()
                 domain = uri.host.orEmpty()
+
             } else {
+                // Count api will not be trigger here as it will goes to browser every time for uri scheme.
                 val rawLink = uri.getQueryParameter("link").orEmpty()
                 val schemeUri = Uri.parse(
                     if (rawLink.startsWith("http")) rawLink else "https://$rawLink"

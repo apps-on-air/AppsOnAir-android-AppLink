@@ -41,12 +41,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="your-scheme" />
+                <data
+                    android:host="open"
+                    android:scheme="yourscheme" />
             </intent-filter>
         </activity>
         <meta-data
             android:name="appId"
-            android:value="*************" />
+            android:value="************************" />
     </application>
 
 </manifest>

@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
                     "DeepLinkListener",
                     "Deep link Result -->$result"
                 )
-                setUI(deepLinkUrl) // Update UI with the deep link URL
+                setUI(result.toString()) // Update UI with the deep link URL
             }
 
             override fun onDeepLinkError(uri: Uri?, error: String) {
@@ -167,12 +167,12 @@ class MainActivity : ComponentActivity() {
                                             name = "AppsOnAir",
                                             url = "https://appsonair.com",
                                             urlPrefix = "your url prefix",
-                                            prefixId = "linkId",
                                             socialMeta = socialMeta,
                                             androidFallbackUrl = "www.playstore/app.com",
                                             iOSFallbackUrl = "www.appstore/app.com",
                                         )
                                         Log.d("API response==>", result.toString())
+                                        setUI(result.toString())
                                         isLoading = false // Hide loader
                                     }
                                 },
