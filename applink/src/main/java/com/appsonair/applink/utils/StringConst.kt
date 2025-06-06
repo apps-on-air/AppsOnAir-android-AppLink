@@ -6,8 +6,8 @@ internal class StringConst {
         const val AppLinkCreate = "dynamic-link/"
         const val Config = AppLinkCreate + "config/"
         const val ApplicatonKey = "x-application-key"
-        const val LinkCount = "link-count-to-be-added"
-        const val LinkAnalytics = "link-analytics-to-be-added"
+        const val Referrer = AppLinkCreate + "referral/details"
+        const val LinkAnalytics = "dynamic-link-analytics/"
 
         ///Common
         const val NetworkError = "No Network Available!"
