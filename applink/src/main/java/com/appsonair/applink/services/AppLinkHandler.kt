@@ -87,8 +87,6 @@ internal class AppLinkHandler {
             if (appsOnAirAppId.isEmpty()) return JSONObject(mapOf("error" to StringConst.AppIdMissing))
 
             val appLinkURL = BuildConfig.BASE_URL + StringConst.AppLinkCreate // Your API endpoint
-
-            // val appLinkURL = "https://jsonplaceholder.typicode.com/posts/1" // Test
             val json = "application/json; charset=utf-8".toMediaType() // Media type for JSON
             val client = OkHttpClient() // OkHttp client instance
             var message: String
@@ -154,20 +152,55 @@ internal class AppLinkHandler {
             }
         }
 
-
-        // Convert JSONObject to Map<String, Any>
-        private fun JSONObject.toMap(): Map<String, Any> {
-            val map = mutableMapOf<String, Any>()
-            val keys = keys()
-            while (keys.hasNext()) {
-                val key = keys.next()
-                map[key] = when (val value = this.get(key)) {
-                    is JSONObject -> value.toMap()  // Convert nested JSON
-                    is org.json.JSONArray -> value  // Convert JSON array if needed
-                    else -> value
-                }
+        @JvmStatic
+        fun handleLinkCount(
+            linkId: String,
+            domain: String,
+            isClicked: Boolean = true,
+            isFirstOpen: Boolean = false,
+            isInstall: Boolean = false,
+        ) {
+            val isNetworkConnected = NetworkWatcherService.isNetworkConnected
+            if (appsOnAirAppId.isEmpty()) {
+                Log.e("AppLink", StringConst.AppIdMissing)
+                return
             }
-            return map
+
+            if (!isNetworkConnected) {
+                Log.e("error", StringConst.NetworkError)
+                return
+            }
+
+            Thread {
+                try {
+                    val json = "application/json; charset=utf-8".toMediaType()
+                    val appLinkURL = BuildConfig.BASE_URL + StringConst.LinkAnalytics
+                    val client = OkHttpClient()
+                    val jsonObject = JSONObject().apply {
+                        put("domain", domain)
+                        put("shortId", linkId)
+                        put("isClicked", isClicked)
+                        put("isFirstOpen", isFirstOpen)
+                        put("isInstalled", isInstall)
+                        put("isReOpen", !isInstall)
+                    }
+                    val body = jsonObject.toString().toRequestBody(json)
+                    val request = Request.Builder()
+                        .url(appLinkURL)
+                        .addHeader(StringConst.ApplicatonKey, appsOnAirAppId)
+                        .post(body)
+                        .build()
+
+                    val response = client.newCall(request).execute()
+                    if (response.isSuccessful) {
+                        Log.d("AppLink", "Analytics Added")
+                    } else {
+                        Log.e("AppLink", "Analytics failed: ${response.code}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("AppLink", "API call exception: ${e.localizedMessage}")
+                }
+            }.start()
         }
     }
 }

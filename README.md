@@ -12,6 +12,7 @@ This plugin is currently in **pre-production**. While the plugin is fully functi
 - ✅ Deep link support (URI scheme, App Links)
 - ✅ Fallback behavior (e.g., open Play Store)
 - ✅ Custom domain support
+- ✅ Referral tracking
 - ✅ Seamless firebase dynamic link migration to AppLink(Coming Soon)
 
 ## Minimum Requirements
@@ -142,3 +143,20 @@ dependencyResolutionManagement {
         iOSFallbackUrl = "www.appstore/app.com",
     )
 ```
+
+#### To retrieving the referral link
+```
+    val referral = deeplinkService.getReferralDetails()
+```
+
+### Note:
+
+#### The install referral data is available for up to 90 days. If you need access to it beyond that, you must store it locally within your app.
+
+To test referral functionality, your app must be live on the Play Store. If it's not, you can use the application ID of any live app instead for testing purposes.
+
+For testing:
+
+- Click the referral link, which should redirect you to the Play Store.
+
+- Do not press the "Install" button. Instead, open the app directly from your IDE (e.g., Android Studio) on the device.

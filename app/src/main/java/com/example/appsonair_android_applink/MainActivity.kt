@@ -69,11 +69,6 @@ class MainActivity : ComponentActivity() {
                 // Handle error when deep link processing fails
                 Log.e("DeepLinkListener", "Failed to process deep link: $uri, Error: $error")
             }
-
-//            override fun onReferralLinkDetected(uri: Uri, params: Map<String, String>) {
-//                // Handle referral link detection
-//                Log.d("DeepLinkListener", "Referral link uri-->$uri, Parameters: $params")
-//            }
         })
 
         // Update UI with the current deep link URL
@@ -145,12 +140,12 @@ class MainActivity : ComponentActivity() {
                             }
 
                             // Button to get the referral link
-//                            ElevatedButton(onClick = {
-//                                val referral = deeplinkService.getReferralDetails()
-//                                setUI(referral.toString()) // Update UI with referral link
-//                            }) {
-//                                Text("Get Referral Link")
-//                            }
+                            ElevatedButton(onClick = {
+                                val referral = deeplinkService.getReferralDetails()
+                                setUI(referral.toString()) // Update UI with referral link
+                            }) {
+                                Text("Get Referral Link")
+                            }
 
                             // Button to trigger API call
                             ElevatedButton(
