@@ -13,5 +13,6 @@ internal class StringConst {
         const val NetworkError = "No Network Available!"
         const val AppIdMissing = "App id missing!"
         const val SomethingWentWrong = "Something went wrong please try again!"
+        const val ValidUrlMessage = "Enter a valid URL"
     }
 }

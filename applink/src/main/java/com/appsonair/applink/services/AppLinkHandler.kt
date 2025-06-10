@@ -1,6 +1,7 @@
 package com.appsonair.applink.services
 
 import android.util.Log
+import android.util.Patterns
 import com.appsonair.applink.BuildConfig
 import com.appsonair.applink.utils.StringConst
 import kotlinx.coroutines.Dispatchers
@@ -118,6 +119,46 @@ internal class AppLinkHandler {
                 message = StringConst.SomethingWentWrong // Handle failure
                 return JSONObject(mapOf("error" to message)) // Exit early if JSON creation fails
             }
+
+            val data = jsonObject.getJSONObject("data")
+            val invalidKeys = mutableListOf<String>()
+
+            if (data.optString("shortId").isNotBlank() && !data.get("shortId").toString()
+                    .isValidShortId()
+            ) {
+                return JSONObject(mapOf("error" to "Only lowercase letters and numbers allowed in shortId!"))
+            }
+
+            fun checkValidUrlKey(key: String) {
+                val value = data.optString(key)
+                if (value.isNotBlank() && !value.isValidUrl()) {
+                    invalidKeys.add(key)
+                }
+            }
+
+            checkValidUrlKey("link")
+            checkValidUrlKey("customUrlForIos")
+            checkValidUrlKey("customUrlForAndroid")
+
+            data.optJSONObject("socialMetaTags")?.let {
+                val imageUrl = it.optString("imageUrl")
+                if (imageUrl.isNotBlank() && !imageUrl.isValidUrl()) {
+                    invalidKeys.add("imageUrl")
+                }
+            }
+
+            if (invalidKeys.isNotEmpty()) {
+                val message = when (val firstInvalidKey = invalidKeys.first()) {
+                    "link" -> "${StringConst.ValidUrlMessage} in url field!"
+                    "customUrlForAndroid" -> "${StringConst.ValidUrlMessage} in androidFallbackUrl field!"
+                    "customUrlForIos" -> "${StringConst.ValidUrlMessage} in iOSFallbackUrl field!"
+                    else -> {
+                        "${StringConst.ValidUrlMessage} in $firstInvalidKey field!"
+                    }
+                }
+                return JSONObject(mapOf("error" to message))
+            }
+
             val body = try {
                 jsonObject.toString().toRequestBody(json)
             } catch (e: Exception) {
@@ -150,6 +191,15 @@ internal class AppLinkHandler {
                     JSONObject(mapOf("error" to StringConst.SomethingWentWrong)) // Handle failure
                 }
             }
+        }
+
+        private fun String.isValidShortId(): Boolean {
+            return isEmpty() || matches(Regex("^[a-z0-9]+$"))
+        }
+
+        private fun String.isValidUrl(): Boolean {
+            return (startsWith("http://") || startsWith("https://")) &&
+                    Patterns.WEB_URL.matcher(this).matches()
         }
 
         @JvmStatic
