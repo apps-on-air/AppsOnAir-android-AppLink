@@ -1,4 +1,8 @@
-## 0.0.2 (Beta)
+## 0.0.3 (Beta)
+
+* Added validation in app link creation
+
+* ## 0.0.2 (Beta)
 
 * Added referral link support
 
