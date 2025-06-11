@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.appsonair"
-version = "0.0.3"
+version = "0.0.4"
 
 val projectProperties = listOf(
     "BASE_URL",
@@ -71,7 +71,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.appsonair"
             artifactId = "applink"
-            version = "0.0.3"
+            version = "0.0.4"
 
             // Wait for Android to finish configuration
             afterEvaluate {

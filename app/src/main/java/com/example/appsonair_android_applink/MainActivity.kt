@@ -163,8 +163,7 @@ class MainActivity : ComponentActivity() {
                                             url = "https://appsonair.com",
                                             urlPrefix = "your url prefix",
                                             socialMeta = socialMeta,
-                                            androidFallbackUrl = "www.playstore/app.com",
-                                            iOSFallbackUrl = "www.appstore/app.com",
+                                            androidFallbackUrl = "https://www.playstore/app.com",
                                         )
                                         Log.d("API response==>", result.toString())
                                         setUI(result.toString())
