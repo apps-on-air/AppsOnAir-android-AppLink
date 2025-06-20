@@ -1,3 +1,7 @@
+## 0.0.5 (Beta)
+
+* Dependency upgrade and improvements
+
 ## 0.0.4 (Beta)
 
 * Minor fixes and improvements
