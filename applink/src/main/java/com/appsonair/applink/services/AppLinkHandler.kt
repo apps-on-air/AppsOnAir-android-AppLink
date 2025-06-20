@@ -101,7 +101,13 @@ internal class AppLinkHandler {
                             // Add optional parameters if they are not null
                             put("link", url)
                             shortId?.let { put("shortId", it) }
-                            socialMeta?.let { put("socialMetaTags", JSONObject(it)) }
+                            socialMeta?.let {
+                                put("socialMetaTags", JSONObject().apply {
+                                    put("title", it["title"] ?: JSONObject.NULL)
+                                    put("description", it["description"] ?: JSONObject.NULL)
+                                    put("imageUrl", it["imageUrl"] ?: JSONObject.NULL)
+                                })
+                            }
                             androidFallbackUrl?.let { put("customUrlForAndroid", it) }
                             iOSFallbackUrl?.let { put("customUrlForIos", it) }
                             put("isOpenInBrowserApple", isOpenInBrowserApple)
@@ -140,15 +146,17 @@ internal class AppLinkHandler {
             checkValidUrlKey("customUrlForIos")
             checkValidUrlKey("customUrlForAndroid")
 
-            data.optJSONObject("socialMetaTags")?.let {
-                val imageUrl = it.optString("imageUrl")
-                if (imageUrl.isNotBlank() && !imageUrl.isValidUrl()) {
-                    invalidKeys.add("imageUrl")
+            data.optJSONObject("socialMetaTags")?.let { meta ->
+                if (meta.has("imageUrl") && !meta.isNull("imageUrl")) {
+                    val imageUrl = meta.optString("imageUrl")
+                    if (imageUrl.isNotBlank() && !imageUrl.isValidUrl()) {
+                        invalidKeys.add("imageUrl")
+                    }
                 }
             }
 
             if (invalidKeys.isNotEmpty()) {
-                val message = when (val firstInvalidKey = invalidKeys.first()) {
+                message = when (val firstInvalidKey = invalidKeys.first()) {
                     "link" -> "${StringConst.ValidUrlMessage} in url field!"
                     "customUrlForAndroid" -> "${StringConst.ValidUrlMessage} in androidFallbackUrl field!"
                     "customUrlForIos" -> "${StringConst.ValidUrlMessage} in iOSFallbackUrl field!"
