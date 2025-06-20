@@ -156,7 +156,7 @@ internal class AppLinkHandler {
             }
 
             if (invalidKeys.isNotEmpty()) {
-                val message = when (val firstInvalidKey = invalidKeys.first()) {
+                message = when (val firstInvalidKey = invalidKeys.first()) {
                     "link" -> "${StringConst.ValidUrlMessage} in url field!"
                     "customUrlForAndroid" -> "${StringConst.ValidUrlMessage} in androidFallbackUrl field!"
                     "customUrlForIos" -> "${StringConst.ValidUrlMessage} in iOSFallbackUrl field!"
