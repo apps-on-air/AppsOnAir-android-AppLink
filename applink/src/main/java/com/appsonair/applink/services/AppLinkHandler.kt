@@ -86,6 +86,14 @@ internal class AppLinkHandler {
                 return JSONObject(mapOf("error" to StringConst.NetworkError)) // Exit early if JSON creation fails
             }
             if (appsOnAirAppId.isEmpty()) return JSONObject(mapOf("error" to StringConst.AppIdMissing))
+            if (name.isNotBlank()) {
+                val nameRegex =
+                    Regex("^[A-Za-z0-9 .\\-_]{1,50}$")//For validating the enter name if not null or empty
+                if (!nameRegex.matches(name)) {
+                    // Handle invalid name
+                    return JSONObject(mapOf("error" to "Use only letters, numbers, dots (.), dashes (-), or underscores (_) up to 50 characters in AppLink name")) // Exit early if JSON creation fails
+                }
+            }
 
             val appLinkURL = BuildConfig.BASE_URL + StringConst.AppLinkCreate // Your API endpoint
             val json = "application/json; charset=utf-8".toMediaType() // Media type for JSON
@@ -132,7 +140,7 @@ internal class AppLinkHandler {
             if (data.optString("shortId").isNotBlank() && !data.get("shortId").toString()
                     .isValidShortId()
             ) {
-                return JSONObject(mapOf("error" to "Only lowercase letters and numbers allowed in shortId!"))
+                return JSONObject(mapOf("error" to "Only letters and numbers allowed (max 50 characters) in shortId!"))
             }
 
             fun checkValidUrlKey(key: String) {
@@ -202,7 +210,7 @@ internal class AppLinkHandler {
         }
 
         private fun String.isValidShortId(): Boolean {
-            return isEmpty() || matches(Regex("^[a-z0-9]+$"))
+            return isEmpty() || matches(Regex("^[a-zA-Z0-9]{1,50}$"))
         }
 
         private fun String.isValidUrl(): Boolean {
