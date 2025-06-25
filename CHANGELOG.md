@@ -1,6 +1,6 @@
 ## 0.0.6 (Beta)
 
-* Added data validation for AppLink creation
+* Updated AppLink link creation data validation
 
 ## 0.0.5 (Beta)
 
