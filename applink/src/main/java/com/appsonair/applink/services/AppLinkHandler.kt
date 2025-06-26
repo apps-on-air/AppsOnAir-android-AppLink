@@ -1,7 +1,6 @@
 package com.appsonair.applink.services
 
 import android.util.Log
-import android.util.Patterns
 import com.appsonair.applink.BuildConfig
 import com.appsonair.applink.utils.StringConst
 import kotlinx.coroutines.Dispatchers
@@ -129,11 +128,6 @@ internal class AppLinkHandler {
             val data = jsonObject.getJSONObject("data")
             val invalidKeys = mutableListOf<String>()
 
-            if (data.optString("shortId").isNotBlank() && !data.get("shortId").toString()
-                    .isValidShortId()
-            ) {
-                return JSONObject(mapOf("error" to "Only lowercase letters and numbers allowed in shortId!"))
-            }
 
             fun checkValidUrlKey(key: String) {
                 val value = data.optString(key)
@@ -201,13 +195,8 @@ internal class AppLinkHandler {
             }
         }
 
-        private fun String.isValidShortId(): Boolean {
-            return isEmpty() || matches(Regex("^[a-z0-9]+$"))
-        }
-
         private fun String.isValidUrl(): Boolean {
-            return (startsWith("http://") || startsWith("https://")) &&
-                    Patterns.WEB_URL.matcher(this).matches()
+            return (startsWith("http://") || startsWith("https://"))
         }
 
         @JvmStatic

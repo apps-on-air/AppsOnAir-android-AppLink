@@ -1,3 +1,7 @@
+## 0.0.6 (Beta)
+
+* Updated AppLink link creation data validation
+
 ## 0.0.5 (Beta)
 
 * Dependency upgrade and improvements
