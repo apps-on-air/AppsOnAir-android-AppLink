@@ -1,3 +1,7 @@
+## 1.0.0
+
+* Initial stable release.
+
 ## 0.0.6 (Beta)
 
 * Updated AppLink link creation data validation
