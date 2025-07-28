@@ -9,7 +9,7 @@
 - ✅ Fallback behavior (e.g., open Play Store)
 - ✅ Custom domain support
 - ✅ Referral tracking
-- ✅ Seamless firebase dynamic link migration to AppLink(Coming Soon)
+- ✅ Seamless firebase dynamic link migration to AppLink
 
 ## Minimum Requirements
 
