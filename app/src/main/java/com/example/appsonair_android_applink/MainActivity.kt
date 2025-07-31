@@ -162,7 +162,7 @@ class MainActivity : ComponentActivity() {
                                             name = "AppsOnAir",
                                             url = "https://appsonair.com",
                                             urlPrefix = "YOUR_DOMAIN_NAME", //shouldn't contain http or https
-                                            androidFallbackUrl = "www.playstore/app.com",
+                                            androidFallbackUrl = "https://playstore/app.com",
                                             socialMeta = socialMeta,
                                             isOpenInAndroidApp = true,
                                             isOpenInBrowserAndroid = false
