@@ -55,12 +55,12 @@ class AppLinkService private constructor(private val context: Context) {
         urlPrefix: String,
         shortId: String? = null,
         socialMeta: Map<String, Any>? = null,
-        isOpenInBrowserAndroid: Boolean = false,
-        isOpenInAndroidApp: Boolean = true,
+        isOpenInBrowserAndroid: Boolean? = null,
+        isOpenInAndroidApp: Boolean? = null,
         androidFallbackUrl: String? = null,
-        isOpenInBrowserApple: Boolean = false,
-        isOpenInIosApp: Boolean = true,
-        iOSFallbackUrl: String? = null,
+        isOpenInBrowserApple: Boolean? = null,
+        isOpenInIosApp: Boolean? = null,
+        iosFallbackUrl: String? = null,
     ): JSONObject {
 
         return AppLinkHandler.createAppLink(
@@ -74,7 +74,7 @@ class AppLinkService private constructor(private val context: Context) {
             androidFallbackUrl = androidFallbackUrl,
             isOpenInBrowserApple = isOpenInBrowserApple,
             isOpenInIosApp = isOpenInIosApp,
-            iOSFallbackUrl = iOSFallbackUrl,
+            iosFallbackUrl = iosFallbackUrl,
         )
     }
 

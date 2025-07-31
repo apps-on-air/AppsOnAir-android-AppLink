@@ -1,3 +1,8 @@
+## 1.1.0
+**Breaking Changes:**
+* Changed `iOSFallbackUrl` to `iosFallbackUrl` in `createAppLink` method.
+* Bugs fixes and improvements
+
 ## 1.0.0
 
 * Initial stable release.
