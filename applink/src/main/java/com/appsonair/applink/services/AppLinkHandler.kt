@@ -72,12 +72,12 @@ internal class AppLinkHandler {
             urlPrefix: String,
             shortId: String? = null,
             socialMeta: Map<String, Any>? = null,
-            isOpenInBrowserAndroid: Boolean = false,
-            isOpenInAndroidApp: Boolean = true,
+            isOpenInBrowserAndroid: Boolean? = null,
+            isOpenInAndroidApp: Boolean? = null,
             androidFallbackUrl: String? = null,
-            isOpenInBrowserApple: Boolean = false,
-            isOpenInIosApp: Boolean = true,
-            iOSFallbackUrl: String? = null,
+            isOpenInBrowserApple: Boolean? = null,
+            isOpenInIosApp: Boolean? = null,
+            iosFallbackUrl: String? = null,
         ): JSONObject {
             // Some of the params are not used as we keep it for future user will remove if not needed in future i.e [customParams, analytics, isShortLink]
             val isNetworkConnected = NetworkWatcherService.isNetworkConnected
@@ -108,11 +108,11 @@ internal class AppLinkHandler {
                                 })
                             }
                             androidFallbackUrl?.let { put("customUrlForAndroid", it) }
-                            iOSFallbackUrl?.let { put("customUrlForIos", it) }
-                            put("isOpenInBrowserApple", isOpenInBrowserApple)
-                            put("isOpenInAndroidApp", isOpenInAndroidApp)
-                            put("isOpenInIosApp", isOpenInIosApp)
-                            put("isOpenInBrowserAndroid", isOpenInBrowserAndroid)
+                            iosFallbackUrl?.let { put("customUrlForIos", it) }
+                            isOpenInBrowserApple?.let { put("isOpenInBrowserApple", it) }
+                            isOpenInAndroidApp?.let { put("isOpenInAndroidApp", it) }
+                            isOpenInIosApp?.let { put("isOpenInIosApp", it) }
+                            isOpenInBrowserAndroid?.let { put("isOpenInBrowserAndroid", it) }
                         },
                     )
                     put("where", JSONObject().apply {
@@ -153,7 +153,7 @@ internal class AppLinkHandler {
                 message = when (val firstInvalidKey = invalidKeys.first()) {
                     "link" -> "${StringConst.ValidUrlMessage} in url field!"
                     "customUrlForAndroid" -> "${StringConst.ValidUrlMessage} in androidFallbackUrl field!"
-                    "customUrlForIos" -> "${StringConst.ValidUrlMessage} in iOSFallbackUrl field!"
+                    "customUrlForIos" -> "${StringConst.ValidUrlMessage} in iosFallbackUrl field!"
                     else -> {
                         "${StringConst.ValidUrlMessage} in $firstInvalidKey field!"
                     }

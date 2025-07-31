@@ -154,16 +154,18 @@ class MainActivity : ComponentActivity() {
                                     val socialMeta = mapOf(
                                         "title" to "link title",
                                         "description" to "link description",
-                                        "imageUrl" to "your meta image url"
+                                        "imageUrl" to "https://image.com"
                                     )
 
                                     CoroutineScope(Dispatchers.Main).launch {
                                         val result = deeplinkService.createAppLink(
                                             name = "AppsOnAir",
                                             url = "https://appsonair.com",
-                                            urlPrefix = "your url prefix",
+                                            urlPrefix = "YOUR_DOMAIN_NAME", //shouldn't contain http or https
+                                            androidFallbackUrl = "www.playstore/app.com",
                                             socialMeta = socialMeta,
-                                            androidFallbackUrl = "https://www.playstore/app.com",
+                                            isOpenInAndroidApp = true,
+                                            isOpenInBrowserAndroid = false
                                         )
                                         Log.d("API response==>", result.toString())
                                         setUI(result.toString())
