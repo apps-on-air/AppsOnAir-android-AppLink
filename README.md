@@ -129,15 +129,19 @@ dependencyResolutionManagement {
         "imageUrl" to "https://image.png"
     )
 
-     val result = deeplinkService.createAppLink(
+   
+CoroutineScope(Dispatchers.Main).launch {
+    val result = deeplinkService.createAppLink(
         name = "AppsOnAir",
         url = "https://appsonair.com",
         urlPrefix = "YOUR_DOMAIN_NAME", //shouldn't contain http or https
-        shortId = "LINK_ID",
+        shortId = "LINK_ID", // If not set, it will be auto-generated
         socialMeta = socialMeta,
         androidFallbackUrl = "www.playstore/app.com",
-        iOSFallbackUrl = "www.appstore/app.com",
+        isOpenInAndroidApp = true,
+        isOpenInBrowserAndroid = false
     )
+  }
 ```
 
 #### To retrieving the referral link
