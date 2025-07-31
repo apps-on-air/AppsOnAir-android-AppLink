@@ -137,7 +137,7 @@ CoroutineScope(Dispatchers.Main).launch {
         urlPrefix = "YOUR_DOMAIN_NAME", //shouldn't contain http or https
         shortId = "LINK_ID", // If not set, it will be auto-generated
         socialMeta = socialMeta,
-        androidFallbackUrl = "https://play.google.com/",
+        androidFallbackUrl = "https://play.google.com",
         isOpenInAndroidApp = true,
         isOpenInBrowserAndroid = false
     )
