@@ -11,7 +11,7 @@
 - ✅ Referral tracking
 - ✅ Seamless migration from Firebase Dynamic Links to AppLink
 
-**Note:** For comprehensive instructions on migrating Firebase Dynamic Links to App Links, refer to the [documentation](https://documentation.appsonair.com/MobileQuickstart/AppLink/firebase-dynamiclinks-migration).
+**Note:** For comprehensive instructions on migrating Firebase Dynamic Links to AppLink, refer to the [documentation](https://documentation.appsonair.com/MobileQuickstart/AppLink/firebase-dynamiclinks-migration).
 
 ## Minimum Requirements
 
@@ -99,7 +99,7 @@ dependencyResolutionManagement {
 
         // Initialize deeplink service and set listener for deep link and referral link events
         appLinkService = AppLinkService.getInstance(this)
-        // Initialize the app link to track the deeplink
+        // Initialize the AppLink to track the deeplink
         appLinkService.initialize(this, intent, object : AppLinkListener {
             override fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
                 // Store the processed deep link URL and log the parameters

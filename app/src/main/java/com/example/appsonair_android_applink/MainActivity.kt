@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
 
         // Initialize deeplink service and set listener for deep link and referral link events
         appLinkService = AppLinkService.getInstance(this)
-        // Initialize the app link to track the deeplink and referral tracking.
+        // Initialize the AppLink to track the deeplink and referral tracking.
         appLinkService.initialize(this, intent, object : AppLinkListener {
             override fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
                 // Store the processed deep link URL and log the parameters

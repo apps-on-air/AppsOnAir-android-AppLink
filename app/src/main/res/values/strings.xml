@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">"AppsOnAir-Android-AppLink"</string>
     <string name="deeplink_text">Waiting for deep link…</string>
-    <string name="simulate_deep_link">App Link Demo</string>
+    <string name="simulate_deep_link">AppLink Demo</string>
 </resources>
