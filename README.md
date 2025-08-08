@@ -5,11 +5,13 @@
 
 ## 🚀 Features
 
-- ✅ Deep link support (URI scheme, App Links)
+- ✅ Deep link support (URI scheme, AppLinks)
 - ✅ Fallback behavior (e.g., open Play Store)
 - ✅ Custom domain support
 - ✅ Referral tracking
-- ✅ Seamless firebase dynamic link migration to AppLink
+- ✅ Seamless migration from Firebase Dynamic Links to AppLink
+
+**Note:** For comprehensive instructions on migrating Firebase Dynamic Links to AppLink, refer to the [documentation](https://documentation.appsonair.com/MobileQuickstart/AppLink/firebase-dynamiclinks-migration).
 
 ## Minimum Requirements
 
@@ -90,15 +92,15 @@ dependencyResolutionManagement {
 
 ```sh
 
-    private lateinit var deeplinkService: AppLinkService
+    private lateinit var appLinkService: AppLinkService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Initialize deeplink service and set listener for deep link and referral link events
-        deeplinkService = AppLinkService.getInstance(this)
-        // Initialize the app link to track the deeplink
-        deeplinkService.initialize(this, intent, object : AppLinkListener {
+        appLinkService = AppLinkService.getInstance(this)
+        // Initialize the AppLink to track the deeplink
+        appLinkService.initialize(this, intent, object : AppLinkListener {
             override fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
                 // Store the processed deep link URL and log the parameters
             }
@@ -114,7 +116,7 @@ dependencyResolutionManagement {
 ```
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        deeplinkService.handleDeepLink(
+        appLinkService.handleDeepLink(
             intent,
             "com.example.appsonair_android_applink"
         ) 
@@ -131,7 +133,7 @@ dependencyResolutionManagement {
 
    
 CoroutineScope(Dispatchers.Main).launch {
-    val result = deeplinkService.createAppLink(
+    val result = appLinkService.createAppLink(
         name = "AppsOnAir",
         url = "https://appsonair.com",
         urlPrefix = "YOUR_DOMAIN_NAME", //shouldn't contain http or https
@@ -146,7 +148,7 @@ CoroutineScope(Dispatchers.Main).launch {
 
 #### To retrieving the referral link
 ```
-    val referral = deeplinkService.getReferralDetails()
+    val referral = appLinkService.getReferralDetails()
 ```
 
 ### Note:
