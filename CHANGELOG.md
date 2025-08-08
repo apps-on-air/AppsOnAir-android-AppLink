@@ -21,7 +21,7 @@
 
 ## 0.0.3 (Beta)
 
-* Added validation in app link creation
+* Added validation in AppLink creation
 
 * ## 0.0.2 (Beta)
 
