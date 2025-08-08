@@ -44,7 +44,7 @@ import org.json.JSONObject
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var deeplinkService: AppLinkService
+    private lateinit var appLinkService: AppLinkService
     private var deepLinkUrl = ""
 
     // Called when the activity is created. Initializes AppLinkService and sets up deep link handling.
@@ -52,9 +52,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Initialize deeplink service and set listener for deep link and referral link events
-        deeplinkService = AppLinkService.getInstance(this)
+        appLinkService = AppLinkService.getInstance(this)
         // Initialize the app link to track the deeplink and referral tracking.
-        deeplinkService.initialize(this, intent, object : AppLinkListener {
+        appLinkService.initialize(this, intent, object : AppLinkListener {
             override fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
                 // Store the processed deep link URL and log the parameters
                 deepLinkUrl = uri.toString()
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
     // Called when the app is resumed with a new intent (deep link).
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        deeplinkService.handleDeepLink(
+        appLinkService.handleDeepLink(
             intent,
             "com.example.appsonair_android_applink"
         ) // Handle deep link
@@ -141,7 +141,7 @@ class MainActivity : ComponentActivity() {
 
                             // Button to get the referral link
                             ElevatedButton(onClick = {
-                                val referral = deeplinkService.getReferralDetails()
+                                val referral = appLinkService.getReferralDetails()
                                 setUI(referral.toString()) // Update UI with referral link
                             }) {
                                 Text("Get Referral Link")
@@ -158,7 +158,7 @@ class MainActivity : ComponentActivity() {
                                     )
 
                                     CoroutineScope(Dispatchers.Main).launch {
-                                        val result = deeplinkService.createAppLink(
+                                        val result = appLinkService.createAppLink(
                                             name = "AppsOnAir",
                                             url = "https://appsonair.com",
                                             urlPrefix = "YOUR_DOMAIN_NAME", //shouldn't contain http or https
