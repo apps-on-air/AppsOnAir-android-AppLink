@@ -160,25 +160,19 @@ class AppLinkService private constructor(private val context: Context) {
                                     isFirstOpen = true,
                                     isInstall = true
                                 )
+                                if (schemeUri.toString().isNotEmpty()) {
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        getFullReferralDetails(domain, linkId, schemeUri.toString())
+                                    }
+                                }
                             }
 
+                        } else {
+                            val storedResult = getJsonFromPrefs(context, "referral_details")
+                            referralLink = storedResult ?: JSONObject()
                         }
-                        var referrerData: Map<String, Any> =
-                            if (linkId.isNotEmpty() && appsOnAirAppLink.isNotEmpty()) {
-                                mapOf(
-                                    "data" to JSONObject().apply {
-                                        put("shortId", linkId)
-                                        put("referralLink", schemeUri)
-                                    },
-                                )
-                            } else {
-                                mapOf(
-                                    "message" to "Referral not found!",
-                                )
-                            }
 
-                        referralLink = JSONObject(referrerData)
-                        callback(referrerData.toString())
+                        callback(schemeUri.toString())
                         referrerClient.endConnection()
                     }
 
@@ -196,6 +190,44 @@ class AppLinkService private constructor(private val context: Context) {
                 callback("Install referrer service disconnected.")
             }
         })
+    }
+
+    private fun saveJsonToPrefs(context: Context, key: String, jsonObject: JSONObject) {
+        val sharedPref = context.getSharedPreferences("Referral", Context.MODE_PRIVATE)
+        sharedPref.edit().apply {
+            putString(key, jsonObject.toString()) // Store JSON as String
+            apply()
+        }
+    }
+
+    private fun getJsonFromPrefs(context: Context, key: String): JSONObject? {
+        val sharedPref = context.getSharedPreferences("Referral", Context.MODE_PRIVATE)
+        val jsonString = sharedPref.getString(key, null)
+
+        return if (!jsonString.isNullOrEmpty()) {
+            try {
+                JSONObject(jsonString)
+            } catch (e: Exception) {
+                e.printStackTrace() // Log the error
+                null
+            }
+        } else {
+            null
+        }
+    }
+
+    private suspend fun getFullReferralDetails(
+        domain: String,
+        linkId: String,
+        referLink: String
+    ): JSONObject {
+        val result = AppLinkHandler.fetchAppLink(linkId, domain)
+        result.put("message", "Referral link fetched successfully!")
+        val dataObj = result.getJSONObject("data")
+        dataObj.put("referralLink", referLink)
+        referralLink = result
+        saveJsonToPrefs(context, "referral_details", result)
+        return result
     }
 
     /**
