@@ -1,3 +1,7 @@
+## 1.1.2
+
+* Added additional information in Referral Details
+
 ## 1.1.1
 
 * Dependency upgrade and improvements
