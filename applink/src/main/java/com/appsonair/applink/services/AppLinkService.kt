@@ -11,8 +11,10 @@ import com.android.installreferrer.api.InstallReferrerStateListener
 import com.android.installreferrer.api.ReferrerDetails
 import com.appsonair.applink.interfaces.AppLinkListener
 import com.appsonair.core.services.CoreService
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 
@@ -33,6 +35,7 @@ class AppLinkService private constructor(private val context: Context) {
 
     private lateinit var listener: AppLinkListener
     private var referralLink = JSONObject()
+    private var referralDeferred: CompletableDeferred<JSONObject>? = null
 
     fun initialize(context: Context, intent: Intent, listener: AppLinkListener) {
         this.listener = listener
@@ -78,10 +81,31 @@ class AppLinkService private constructor(private val context: Context) {
         )
     }
 
+    @Deprecated(
+        message = "Use getReferralInfo() instead",
+        replaceWith = ReplaceWith("getReferralInfo()")
+    )
     fun getReferralDetails(): JSONObject {
         return referralLink
     }
 
+    suspend fun getReferralInfo(): JSONObject {
+        // Case 1: already in memory
+        if (referralLink.length() > 0) {
+            return referralLink
+        }
+
+        // Case 2: check shared prefs
+        val cached = getJsonFromPrefs(context, "referral_details")
+        if (cached != null && cached.length() > 0) {
+            referralLink = cached
+            return cached
+        }
+
+        // Case 3: wait until referralLink is set by API call
+        referralDeferred = CompletableDeferred()
+        return referralDeferred!!.await()
+    }
 
     /**
      * Processes the deep link intent.
@@ -162,12 +186,23 @@ class AppLinkService private constructor(private val context: Context) {
                                 )
                                 if (schemeUri.toString().isNotEmpty()) {
                                     CoroutineScope(Dispatchers.Main).launch {
-                                        getFullReferralDetails(domain, linkId, schemeUri.toString())
+
+                                        var result = getFullReferralDetails(
+                                            domain,
+                                            linkId,
+                                            schemeUri.toString()
+                                        )
+
+                                        delay(750) // Wait for sometime to trigger listener
+                                        listener.onReferralLinkDetected(
+                                            result
+                                        )
                                     }
                                 }
                             }
 
                         } else {
+                            // For backward compatibility need to remove below code once remove deprecated referral method
                             val storedResult = getJsonFromPrefs(context, "referral_details")
                             referralLink = storedResult ?: JSONObject()
                         }
@@ -221,13 +256,32 @@ class AppLinkService private constructor(private val context: Context) {
         linkId: String,
         referLink: String
     ): JSONObject {
-        val result = AppLinkHandler.fetchAppLink(linkId, domain)
-        result.put("message", "Referral link fetched successfully!")
-        val dataObj = result.getJSONObject("data")
-        dataObj.put("referralLink", referLink)
-        referralLink = result
-        saveJsonToPrefs(context, "referral_details", result)
-        return result
+        return try {
+            val result = AppLinkHandler.fetchAppLink(linkId, domain)
+            if (result.has("data") && !result.isNull("data")) {
+                val dataObj = result.getJSONObject("data")
+                dataObj.put("referralLink", referLink)
+                result.put("message", "Referral link fetched successfully!")
+                referralLink = result
+                saveJsonToPrefs(context, "referral_details", result)
+                referralDeferred?.complete(result) //  notify waiter
+                referralDeferred = null
+            } else {
+                // Handle missing data object
+                result.put("message", "No referral data found")
+                result.put("data", JSONObject().put("referralLink", referLink))
+            }
+
+            result
+        } catch (e: Exception) {
+            // Handle unexpected errors gracefully
+            val errorObj = JSONObject()
+            errorObj.put("message", "Failed to fetch referral link: ${e.localizedMessage}")
+            errorObj.put("data", JSONObject().put("referralLink", referLink))
+            referralDeferred?.complete(errorObj) //  notify waiter
+            referralDeferred = null
+            errorObj
+        }
     }
 
     /**
