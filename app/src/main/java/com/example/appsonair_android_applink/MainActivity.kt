@@ -69,6 +69,10 @@ class MainActivity : ComponentActivity() {
                 // Handle error when deep link processing fails
                 Log.e("DeepLinkListener", "Failed to process deep link: $uri, Error: $error")
             }
+
+            override fun onReferralLinkDetected(result: JSONObject) {
+                setUI(result.toString()) // Update UI with the deep link URL
+            }
         })
 
         // Update UI with the current deep link URL
@@ -141,8 +145,10 @@ class MainActivity : ComponentActivity() {
 
                             // Button to get the referral link
                             ElevatedButton(onClick = {
-                                val referral = appLinkService.getReferralDetails()
-                                setUI(referral.toString()) // Update UI with referral link
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    val referral = appLinkService.getReferralInfo()
+                                    setUI(referral.toString()) // Update UI with referral link
+                                }
                             }) {
                                 Text("Get Referral Link")
                             }
