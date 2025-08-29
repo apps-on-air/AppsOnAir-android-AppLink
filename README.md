@@ -102,11 +102,15 @@ dependencyResolutionManagement {
         // Initialize the AppLink to track the deeplink
         appLinkService.initialize(this, intent, object : AppLinkListener {
             override fun onDeepLinkProcessed(uri: Uri, result: JSONObject) {
-                // Store the processed deep link URL and log the parameters
+                // Perform your action on deep link
             }
 
             override fun onDeepLinkError(uri: Uri?, error: String) {
                 // Handle error when deep link processing fails
+            }
+            // Optional method
+            override fun onReferralLinkDetected(result: JSONObject) {
+                 // Perform your action on referral data
             }
         })
     }
@@ -148,7 +152,9 @@ CoroutineScope(Dispatchers.Main).launch {
 
 #### To retrieving the referral link
 ```
-    val referral = appLinkService.getReferralDetails()
+CoroutineScope(Dispatchers.Main).launch {
+    val referral = appLinkService.getReferralInfo()
+}
 ```
 
 ### Note:
