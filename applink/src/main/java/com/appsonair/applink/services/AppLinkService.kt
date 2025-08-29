@@ -276,7 +276,7 @@ class AppLinkService private constructor(private val context: Context) {
         } catch (e: Exception) {
             // Handle unexpected errors gracefully
             val errorObj = JSONObject()
-            errorObj.put("message", "Failed to fetch referral link: ${e.localizedMessage}")
+            errorObj.put("message", "Failed to fetch referral data: ${e.localizedMessage}")
             errorObj.put("data", JSONObject().put("referralLink", referLink))
             referralDeferred?.complete(errorObj) //  notify waiter
             referralDeferred = null

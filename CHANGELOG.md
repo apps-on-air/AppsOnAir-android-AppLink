@@ -1,4 +1,4 @@
-## 1.1.3
+## 1.2.0
 
 * `getReferralDetails()` method is now deprecated use `getReferralInfo()` instead.
 
