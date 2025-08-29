@@ -1,10 +1,15 @@
+## 1.2.1
+
+* Improvements & fixes.
+
 ## 1.2.0
 
 * `getReferralDetails()` method is now deprecated use `getReferralInfo()` instead.
 
 * Introduced `onReferralLinkDetected()` in AppLinkListener.
     * This callback is optional.
-    * It is triggered only when the app is installed and launched for the first time with a referral details.
+    * It is triggered only when the app is installed and launched for the first time with a referral
+      details.
 
 ## 1.1.2
 
@@ -17,6 +22,7 @@
 ## 1.1.0
 
 **Breaking Changes:**
+
 * Changed parameter `iOSFallbackUrl` to `iosFallbackUrl` in the `createAppLink` method.
 * Bugs fixes and improvements
 
