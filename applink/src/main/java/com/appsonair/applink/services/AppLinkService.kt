@@ -43,7 +43,7 @@ class AppLinkService private constructor(private val context: Context) {
 
         // Fetch install referrer (if needed for initialization)
         fetchInstallReferrer {
-            Log.d("AppLinkService", "Install Referrer fetched successfully----> $it")
+            Log.d("AppLinkService", "Install Referrer fetched successfully!!")
         }
 
         // Handle deep link processing immediately
@@ -199,6 +199,10 @@ class AppLinkService private constructor(private val context: Context) {
                                         )
                                     }
                                 }
+                            } else {
+                                val data =
+                                    JSONObject().put("message", "AppLink referral does not exist!")
+                                saveJsonToPrefs(context, "referral_details", data)
                             }
 
                         } else {
@@ -268,18 +272,19 @@ class AppLinkService private constructor(private val context: Context) {
                 referralDeferred = null
             } else {
                 // Handle missing data object
-                result.put("message", "No referral data found")
-                result.put("data", JSONObject().put("referralLink", referLink))
+                result.put("message", "AppLink referral does not exist!")
+                referralDeferred?.complete(result) //  notify waiter
+                referralDeferred = null
+                saveJsonToPrefs(context, "referral_details", result)
             }
-
             result
         } catch (e: Exception) {
             // Handle unexpected errors gracefully
             val errorObj = JSONObject()
-            errorObj.put("message", "Failed to fetch referral data: ${e.localizedMessage}")
-            errorObj.put("data", JSONObject().put("referralLink", referLink))
+            errorObj.put("message", "AppLink referral does not exist!")
             referralDeferred?.complete(errorObj) //  notify waiter
             referralDeferred = null
+            saveJsonToPrefs(context, "referral_details", errorObj)
             errorObj
         }
     }
