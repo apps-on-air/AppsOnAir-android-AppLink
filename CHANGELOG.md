@@ -1,3 +1,7 @@
+## 1.3.0
+
+* Dependency upgrade.
+
 ## 1.2.1
 
 * Improvements & fixes.
