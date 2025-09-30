@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.webkit.WebView
 import androidx.core.net.toUri
 import com.android.installreferrer.api.InstallReferrerClient
 import com.android.installreferrer.api.InstallReferrerStateListener
@@ -17,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.net.URI
 
 class AppLinkService private constructor(private val context: Context) {
 
@@ -197,12 +199,15 @@ class AppLinkService private constructor(private val context: Context) {
                                         listener.onReferralLinkDetected(
                                             result
                                         )
+                                        val publicUserAgent = getUserAgent()
+                                        AppLinkHandler.getReferralLinkByIP(publicUserAgent) //Just for avoiding the conflicts I'm calling this api when app reinstall
                                     }
                                 }
                             } else {
-                                val data =
-                                    JSONObject().put("message", "AppLink referral does not exist!")
-                                saveJsonToPrefs(context, "referral_details", data)
+                                // Fetch the referral link using IP if play referral API doesn't detect it
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    getReferralUsingIp()
+                                }
                             }
 
                         } else {
@@ -229,6 +234,42 @@ class AppLinkService private constructor(private val context: Context) {
                 callback("Install referrer service disconnected.")
             }
         })
+    }
+
+    private fun getUserAgent(): String {
+        val webView = WebView(context)
+        // Get the User-Agent that WebView will use
+        val publicUserAgent = webView.settings.userAgentString ?: ""
+        return publicUserAgent
+    }
+
+    suspend fun getReferralUsingIp() {
+        val publicUserAgent = getUserAgent()
+        val data = AppLinkHandler.getReferralLinkByIP(publicUserAgent)
+        val dataObject = data.optJSONObject("data")
+        referralLink = data
+        saveJsonToPrefs(context, "referral_details", data)
+        delay(500) // Wait for sometime to trigger listener
+        referralDeferred?.complete(data) //  notify waiter
+        listener.onReferralLinkDetected(
+            data
+        )
+
+        if (dataObject != null) {
+            val shortId = dataObject.optString("shortId", "")
+            val referralLink = dataObject.optString("referralLink", "")
+
+            if (shortId.isNotEmpty() && referralLink.isNotEmpty()) {
+                val domain = URI(referralLink).host
+                AppLinkHandler.handleLinkCount(
+                    shortId,
+                    domain,
+                    isClicked = false,
+                    isFirstOpen = true,
+                    isInstall = true
+                )
+            }
+        }
     }
 
     private fun saveJsonToPrefs(context: Context, key: String, jsonObject: JSONObject) {
