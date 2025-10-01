@@ -249,5 +249,45 @@ internal class AppLinkHandler {
                 }
             }.start()
         }
+
+        @JvmStatic
+        suspend fun getReferralLinkByIP(
+            publicUserAgent: String? = ""
+        ): JSONObject {
+            val isNetworkConnected = NetworkWatcherService.isNetworkConnected
+            if (!isNetworkConnected) {
+                return JSONObject(mapOf("error" to StringConst.NetworkError)) // Exit early if JSON creation fails
+            }
+            val appLinkURL = BuildConfig.BASE_URL + StringConst.Referrer
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url(appLinkURL).addHeader(StringConst.ApplicatonKey, appsOnAirAppId)
+                .addHeader("User-Agent", publicUserAgent ?: "")
+                .get()
+                .build()
+
+            return withContext(Dispatchers.IO) {
+                try {
+                    val response = client.newCall(request).execute()
+
+                    if (response.isSuccessful) {
+                        val responseBody = response.body?.string().orEmpty()
+                        JSONObject(responseBody)  // Return the response directly
+                    } else {
+                        val errorBody = response.body?.string().orEmpty()
+                        if (response.code != 429) {
+                            JSONObject(errorBody)
+                        } else {
+                            JSONObject(mapOf("error" to errorBody))
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("NetworkError", "Request failed: ${e.message}")
+                    // Handle failure
+                    JSONObject(mapOf("error" to StringConst.SomethingWentWrong))
+                }
+            }
+        }
+
     }
 }

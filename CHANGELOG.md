@@ -1,3 +1,7 @@
+## 1.3.1
+
+* Referral tracking enhancement.
+
 ## 1.3.0
 
 * Dependency upgrade.
