@@ -41,17 +41,15 @@ class AppLinkService private constructor(private val context: Context) {
 
     fun initialize(context: Context, intent: Intent, listener: AppLinkListener) {
         this.listener = listener
+        NetworkWatcherService.checkNetworkConnection(context)
         AppLinkHandler.appsOnAirAppId = CoreService.getAppId(context)
 
         // Fetch install referrer (if needed for initialization)
         fetchInstallReferrer {
             Log.d("AppLinkService", "Install Referrer fetched successfully!!")
         }
-
         // Handle deep link processing immediately
         handleDeepLink(intent, "com.example.appsonair_android_applink")
-
-        NetworkWatcherService.checkNetworkConnection(context)
     }
 
     suspend fun createAppLink(
@@ -126,12 +124,16 @@ class AppLinkService private constructor(private val context: Context) {
     ) {
         val uri = intent.data
         if (uri != null) {
-            try {
-                onDeepLinkProcessed(uri)
-            } catch (e: Exception) {
-                onDeepLinkError(uri, "Error processing deep link: ${e.message}")
-                handleFallback(fallbackPackageName, fallbackUrl, source)
+            CoroutineScope(Dispatchers.Main).launch {
+                try {
+                    delay(500)
+                    onDeepLinkProcessed(uri)
+                } catch (e: Exception) {
+                    onDeepLinkError(uri, "Error processing deep link: ${e.message}")
+                    handleFallback(fallbackPackageName, fallbackUrl, source)
+                }
             }
+
         }
     }
 
