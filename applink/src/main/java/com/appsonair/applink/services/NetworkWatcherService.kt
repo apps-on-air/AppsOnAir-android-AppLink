@@ -5,7 +5,7 @@ import com.appsonair.core.services.NetworkService
 
 internal class NetworkWatcherService {
     companion object {
-        var isNetworkConnected = false
+        var isNetworkConnected = true //For connectivity issue fixes changed default to true
 
         fun checkNetworkConnection(context: Context) {
             NetworkService.checkConnectivity(
