@@ -62,6 +62,10 @@ class MainActivity : ComponentActivity() {
                     "DeepLinkListener",
                     "Deep link Result -->$result"
                 )
+                Log.d(
+                    "DeepLinkListener",
+                    "Deep link Link -->$deepLinkUrl"
+                )
                 setUI(result.toString()) // Update UI with the deep link URL
             }
 
