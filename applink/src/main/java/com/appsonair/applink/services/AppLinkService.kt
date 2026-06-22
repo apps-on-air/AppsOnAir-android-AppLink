@@ -359,6 +359,10 @@ class AppLinkService private constructor(private val context: Context) {
                 linkId = schemeUri.lastPathSegment.orEmpty()
                 domain = schemeUri.host.orEmpty()
             }
+            if(linkId.isEmpty()){
+                listener.onDeepLinkProcessed(uri, JSONObject())
+                return@launch
+            }
             AppLinkHandler.handleLinkCount(linkId, domain, isClick)
             val result = AppLinkHandler.fetchAppLink(linkId, domain)
             listener.onDeepLinkProcessed(uri, result.optJSONObject("data") ?: result)
