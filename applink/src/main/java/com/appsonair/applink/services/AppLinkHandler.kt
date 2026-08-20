@@ -22,7 +22,8 @@ internal class AppLinkHandler {
         @JvmStatic
         suspend fun fetchAppLink(
             linkId: String,
-            domain: String
+            domain: String,
+            publicUserAgent: String
         ): JSONObject {
             val isNetworkConnected = NetworkWatcherService.isNetworkConnected
             if (!isNetworkConnected) {
@@ -34,12 +35,16 @@ internal class AppLinkHandler {
 
             val request = Request.Builder()
                 .url(appLinkURL).addHeader(StringConst.ApplicatonKey, appsOnAirAppId)
+                .addHeader(StringConst.SdkVersionKey, BuildConfig.VERSION_NAME)
+                .addHeader("User-Agent", publicUserAgent)
                 .get()
                 .build()
 
             return withContext(Dispatchers.IO) {
                 try {
                     val response = client.newCall(request).execute()
+                    // Server clock, used to keep attributionTtl off the editable device clock.
+                    ServerTimeService.recordServerDate(response.header("Date"))
 
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string().orEmpty()
@@ -78,6 +83,8 @@ internal class AppLinkHandler {
             isOpenInBrowserApple: Boolean? = null,
             isOpenInIosApp: Boolean? = null,
             iosFallbackUrl: String? = null,
+            appsFlyer: Map<String, Any>? = null,
+            attributionTtl: Int? = null,
         ): JSONObject {
             // Some of the params are not used as we keep it for future user will remove if not needed in future i.e [customParams, analytics, isShortLink]
             val isNetworkConnected = NetworkWatcherService.isNetworkConnected
@@ -107,6 +114,8 @@ internal class AppLinkHandler {
                                     put("imageUrl", it["imageUrl"] ?: JSONObject.NULL)
                                 })
                             }
+                            appsFlyer?.let { put("appsFlyer", JSONObject(it)) }
+                            attributionTtl?.let { put("attributionTtl", it) }
                             androidFallbackUrl?.let { put("customUrlForAndroid", it) }
                             iosFallbackUrl?.let { put("customUrlForIos", it) }
                             isOpenInBrowserApple?.let { put("isOpenInBrowserApple", it) }
@@ -171,12 +180,15 @@ internal class AppLinkHandler {
 
             val request = Request.Builder()
                 .url(appLinkURL).addHeader(StringConst.ApplicatonKey, appsOnAirAppId)
+                .addHeader(StringConst.SdkVersionKey, BuildConfig.VERSION_NAME)
                 .post(body)
                 .build()
 
             return withContext(Dispatchers.IO) {
                 try {
                     val response = client.newCall(request).execute()
+                    // Server clock, used to keep attributionTtl off the editable device clock.
+                    ServerTimeService.recordServerDate(response.header("Date"))
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string().orEmpty()
                         JSONObject(responseBody) // Return the response directly
@@ -206,19 +218,23 @@ internal class AppLinkHandler {
             isClicked: Boolean = true,
             isFirstOpen: Boolean = false,
             isInstall: Boolean = false,
+            onResult: ((Boolean) -> Unit)? = null,
         ) {
             val isNetworkConnected = NetworkWatcherService.isNetworkConnected
             if (appsOnAirAppId.isEmpty()) {
                 Log.e("AppLink", StringConst.AppIdMissing)
+                onResult?.invoke(false)
                 return
             }
 
             if (!isNetworkConnected) {
                 Log.e("error", StringConst.NetworkError)
+                onResult?.invoke(false)
                 return
             }
 
             Thread {
+                var isSuccessful = false
                 try {
                     val json = "application/json; charset=utf-8".toMediaType()
                     val appLinkURL = BuildConfig.BASE_URL + StringConst.LinkAnalytics
@@ -235,11 +251,15 @@ internal class AppLinkHandler {
                     val request = Request.Builder()
                         .url(appLinkURL)
                         .addHeader(StringConst.ApplicatonKey, appsOnAirAppId)
+                        .addHeader(StringConst.SdkVersionKey, BuildConfig.VERSION_NAME)
                         .post(body)
                         .build()
 
                     val response = client.newCall(request).execute()
-                    if (response.isSuccessful) {
+                    // Server clock, used to keep attributionTtl off the editable device clock.
+                    ServerTimeService.recordServerDate(response.header("Date"))
+                    isSuccessful = response.isSuccessful
+                    if (isSuccessful) {
                         Log.d("AppLink", "Analytics Added")
                     } else {
                         Log.e("AppLink", "Analytics failed: ${response.code}")
@@ -247,6 +267,7 @@ internal class AppLinkHandler {
                 } catch (e: Exception) {
                     Log.e("AppLink", "API call exception: ${e.localizedMessage}")
                 }
+                onResult?.invoke(isSuccessful)
             }.start()
         }
 
@@ -262,6 +283,7 @@ internal class AppLinkHandler {
             val client = OkHttpClient()
             val request = Request.Builder()
                 .url(appLinkURL).addHeader(StringConst.ApplicatonKey, appsOnAirAppId)
+                .addHeader(StringConst.SdkVersionKey, BuildConfig.VERSION_NAME)
                 .addHeader("User-Agent", publicUserAgent ?: "")
                 .get()
                 .build()
@@ -269,6 +291,8 @@ internal class AppLinkHandler {
             return withContext(Dispatchers.IO) {
                 try {
                     val response = client.newCall(request).execute()
+                    // Server clock, used to keep attributionTtl off the editable device clock.
+                    ServerTimeService.recordServerDate(response.header("Date"))
 
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string().orEmpty()
