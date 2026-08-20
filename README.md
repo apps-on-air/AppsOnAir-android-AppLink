@@ -97,7 +97,7 @@ dependencyResolutionManagement {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize deeplink service and set listener for deep link and referral link events
+        // Initialize deeplink service and set listener for deep link and attribution events
         appLinkService = AppLinkService.getInstance(this)
         // Initialize the AppLink to track the deeplink
         appLinkService.initialize(this, intent, object : AppLinkListener {
@@ -108,9 +108,8 @@ dependencyResolutionManagement {
             override fun onDeepLinkError(uri: Uri?, error: String) {
                 // Handle error when deep link processing fails
             }
-            // Optional method
-            override fun onReferralLinkDetected(result: JSONObject) {
-                 // Perform your action on referral data
+            override fun onAttributionListener(result: JSONObject) {
+                 // Perform your action on attribution data
             }
         })
     }
@@ -135,6 +134,15 @@ dependencyResolutionManagement {
         "imageUrl" to "https://image.png"
     )
 
+    val appsFlyer = mapOf(
+        "channel" to "appsonair",
+        "campaignId" to "01",
+        "campaign" to "test",
+        "subs" to listOf("sub1", "sub2", "sub3", "sub4", "sub5"),
+        "metaTitle" to "metaTitle",
+        "metaDescription" to "metaDescription"
+    )
+
    
 CoroutineScope(Dispatchers.Main).launch {
     val result = appLinkService.createAppLink(
@@ -145,21 +153,64 @@ CoroutineScope(Dispatchers.Main).launch {
         socialMeta = socialMeta,
         androidFallbackUrl = "https://play.google.com",
         isOpenInAndroidApp = true,
-        isOpenInBrowserAndroid = false
+        isOpenInBrowserAndroid = false,
+        appsFlyer = appsFlyer, // Optional
+        attributionTtl = 3600 // Optional
     )
   }
 ```
 
-#### To retrieving the referral link
+#### To retrieving the attribution info
 ```
 CoroutineScope(Dispatchers.Main).launch {
-    val referral = appLinkService.getReferralInfo()
+    val attribution = appLinkService.getAttributionInfo()
 }
 ```
 
-### Note:
+`onAttributionListener()` At first detection, then on the foreground return
+that follows `isFirstLaunch` turning `false`. Gate one time logic on `isFirstLaunch`, not on the
+callback firing.
 
-#### The install referral data is available for up to 90 days. If you need access to it beyond that, you must store it locally within your app.
+Along with the referral details, `getAttributionInfo()` and `onAttributionListener()` add the
+following keys inside the `data` object of the response:
+
+| Response Key | Type | Description |
+| --- | --- | --- |
+| `isFirstLaunch` | Boolean | `true` during the first launch after installation, until the app leaves the foreground. |
+| `firstInstallTime` | Long | Timestamp (epoch milliseconds) of the app's first installation. |
+| `applink_click_time` | Long | Timestamp (epoch milliseconds) of the click this install is attributed to. Absent when the install referrer carried none. |
+| `isConsumed` | Boolean | `true` when `attributionStatus` is `non-organic`. |
+| `attributionStatus` | String | `non-organic` when the install happened within `attributionTtl` of the click, `organic` otherwise. |
+
+
+### Upgrading from 1.3.x
+
+No code change is required: `initialize(context, intent, AppLinkListener)` keeps its signature and
+an existing listener compiles unchanged. `AppLinkListener` gains `onAttributionListener()`, which
+has a default implementation, so override it only when you want the attribution payload:
+
+```sh
+    appLinkService.initialize(this, intent, object : AppLinkListener {
+        override fun onDeepLinkProcessed(uri: Uri, result: JSONObject) { }
+
+        override fun onDeepLinkError(uri: Uri?, error: String) { }
+
+        // New in 2.0.0 — optional
+        override fun onAttributionListener(result: JSONObject) { }
+    })
+```
+
+### Deprecated APIs
+
+Deprecated and removed in a future release. Existing integrations keep working:
+
+| Deprecated | Use instead |
+| --- | --- |
+| `onReferralLinkDetected()` | `onAttributionListener()` |
+| `getReferralInfo()` | `getAttributionInfo()` |
+| `getReferralDetails()` | `getAttributionInfo()` |
+
+### Note:
 
 To test referral functionality, your app must be live on the Play Store. If it's not, you can use the application ID of any live app instead for testing purposes.
 
