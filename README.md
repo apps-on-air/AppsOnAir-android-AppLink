@@ -121,8 +121,8 @@ dependencyResolutionManagement {
         super.onNewIntent(intent)
         appLinkService.handleDeepLink(
             intent,
-            "com.example.appsonair_android_applink"
-        ) 
+            "com.example.appsonair_android_applink" // Replace with your app's package name
+        )
     }
 ```
 
@@ -159,6 +159,75 @@ CoroutineScope(Dispatchers.Main).launch {
     )
   }
 ```
+
+#### To retrieve app link info by Short ID and URL Prefix
+
+Use `getAppLinkInfo()` to fetch link details on demand. Only returns data for links belonging to your configured **AppsonairAppId**.
+Both **shortId** and **urlPrefix** are required.
+
+**Kotlin**
+```kotlin
+CoroutineScope(Dispatchers.Main).launch {
+    val result = appLinkService.getAppLinkInfo(
+        shortId = "LINK_SHORT_ID",       // Last path segment of the link URL
+        urlPrefix = "YOUR_DOMAIN_NAME"   // Domain without http/https
+    )
+}
+```
+
+**Java** — create `AppLinkBridge.kt`:
+```kotlin
+class AppLinkBridge {
+    companion object {
+        @JvmStatic
+        fun getAppLinkInfo(
+            context: Context,
+            shortId: String,
+            urlPrefix: String
+        ): JSONObject = runBlocking {
+            AppLinkService.getInstance(context).getAppLinkInfo(shortId, urlPrefix)
+        }
+    }
+}
+```
+Then call from your Java activity:
+```java
+JSONObject result = AppLinkBridge.getAppLinkInfo(this, "LINK_SHORT_ID", "YOUR_DOMAIN_NAME");
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `shortId` | String | ✅ | Last path segment of the link URL. |
+| `urlPrefix` | String | ✅ | Domain of the link, without scheme (e.g. `example.appsonair.link`). |
+
+**Response:**
+```json
+{
+  "data": {
+    "name": "Link Name",
+    "link": "https://example.com/target-page",
+    "shortId": "LINK_SHORT_ID",
+    "socialMetaTags": {
+      "title": "Link Title",
+      "description": "Link Description",
+      "imageUrl": "https://example.com/image.png"
+    },
+    "attributionTtl": 3600,
+    "appsFlyer": {
+      "channel": "appsonair",
+      "campaignId": "01",
+      "campaign": "test",
+      "subs": ["sub1", "sub2", "sub3", "sub4", "sub5"],
+      "metaTitle": "metaTitle",
+      "metaDescription": "metaDescription"
+    }
+  },
+  "message": "AppLink fetched successfully!",
+  "status": "SUCCESS"
+}
+```
+
+> `appsFlyer` is included only when the link was created with AppsFlyer params.
 
 #### To retrieving the attribution info
 ```
