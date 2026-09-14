@@ -486,6 +486,29 @@ class AppLinkService private constructor(private val context: Context) {
         appLinkListener?.onAttributionListener(withAttribution(result))
     }
 
+    /**
+     * Fetches the app link details for the given [shortId] and [urlPrefix].
+     *
+     * Uses the same endpoint called internally when a link is tapped
+     * (`dynamic-link/{shortId}?domain={urlPrefix}`), so you get identical data on demand
+     * without needing a link tap to trigger [AppLinkListener.onDeepLinkProcessed].
+     *
+     * Only returns data for links that belong to the app identified by the `AppsonairAppId`
+     * configured in `AndroidManifest.xml`. Passing a [shortId] or [urlPrefix] from a
+     * different app will return an error response.
+     *
+     * When the link was created with AppsFlyer params, the response includes an `appsFlyer`
+     * object inside `data`. It is absent when the link carries no AppsFlyer configuration.
+     *
+     * @param shortId   The short identifier of the link (last path segment of the link URL). Required.
+     * @param urlPrefix The domain of the link, without scheme (e.g. "example.appsonair.link"). Required.
+     * @return The API response as a [JSONObject] containing the link details inside a `data` object.
+     */
+    suspend fun getAppLinkInfo(shortId: String, urlPrefix: String): JSONObject {
+        val userAgent = withContext(Dispatchers.Main) { getUserAgent() }
+        return AppLinkHandler.fetchAppLink(shortId, urlPrefix, userAgent)
+    }
+
     suspend fun createAppLink(
         url: String,
         name: String,

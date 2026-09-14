@@ -67,7 +67,12 @@ class MainActivity : ComponentActivity() {
     private var attributionListenerResult by mutableStateOf("")
     private var attributionApiResult by mutableStateOf("")
     private var createLinkResult by mutableStateOf("")
+    private var appLinkInfoResult by mutableStateOf("")
     private var isLoading by mutableStateOf(false)
+
+    // getAppLinkInfo inputs
+    private var appLinkInfoShortId by mutableStateOf("")
+    private var appLinkInfoUrlPrefix by mutableStateOf("")
 
     // createAppLink inputs, mirroring the React Native example's form.
     private var linkName by mutableStateOf("AppsOnAir")
@@ -268,6 +273,37 @@ class MainActivity : ComponentActivity() {
                             }
                         }) {
                             Text("Get Attribution Info")
+                        }
+
+                        Divider()
+
+                        SectionTitle("Get App Link Info")
+
+                        LabeledTextField("Short ID", appLinkInfoShortId) {
+                            appLinkInfoShortId = it
+                        }
+                        LabeledTextField("URL Prefix (no http/https)", appLinkInfoUrlPrefix) {
+                            appLinkInfoUrlPrefix = it
+                        }
+
+                        ResponseSection("Get App Link Info", appLinkInfoResult)
+
+                        ElevatedButton(
+                            onClick = {
+                                isLoading = true
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    val result = appLinkService.getAppLinkInfo(
+                                        shortId = appLinkInfoShortId.trim(),
+                                        urlPrefix = appLinkInfoUrlPrefix.trim()
+                                    )
+                                    Log.d("GetAppLinkInfo", result.toString())
+                                    appLinkInfoResult = result.toString()
+                                    isLoading = false
+                                }
+                            },
+                            Modifier.padding(16.dp)
+                        ) {
+                            Text("Get App Link Info")
                         }
 
                         Divider()
