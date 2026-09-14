@@ -1,3 +1,9 @@
+## 2.0.1
+
+* Introduced `getAppLinkInfo()` method.
+    * Fetches link details on demand using the `shortId` and `urlPrefix`. Only returns data for links belonging to your configured `AppsonairAppId`.
+    * When the link was created with AppsFlyer params, the response includes an `appsFlyer` object inside `data`.
+
 ## 2.0.0
 
 * `getReferralInfo()` is now deprecated, use `getAttributionInfo()` instead.
